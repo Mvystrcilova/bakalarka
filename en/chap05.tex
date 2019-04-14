@@ -187,9 +187,35 @@ The distribution graph of the SOM method clearly shows, that the distribution of
 	\label{fig:som_distribution}
 \end{figure}
 \section{Audio method experiments}
+\subsection{Audio preparation}\label{ssec:audio_prep}
 
-\subsection{Experiments}
-\subsection{Results}
+In order to encode audios of songs, we first needed to acquire some form of the music to become our standard. To make our audio information suitable for machine learning, we decided to extract audios of the same length so our vectors (spectrograms, mel-spectrograms and mfccs are also of the same length). Since all songs have different lengths and also, one complete 3.5 minute long song results in a spectrogram of size 5214x2206 which when flattened is a vector of length 11 502 084. Therefore we decided to extract 15 second excerpts from each song to create spectrograms, mel-spectrograms and MFCCs from those. We took 5 seconds between the 15th and 20th second, 5 seconds starting in the middle of the song and 5 second starting 15 seconds before the end. We did not start at the beginning and the end because in some songs, there is silence or applause or some talking before the actual song starts. \\
+
+It was also necessary to decide on some parameters for spectrograms, mel-spectrograms and MFCCs. As stated previously, our neural networks were inspired by \cite{inproceedings_RNNs} where they also performed parameter optimisation. We decided to use their parameters as input for all our methods. It is possible that some parameters values suite some methods better than others but because of the amount of methods we tested we decided it would too difficult to optimise them for each method. We also think, that it a good idea to have all methods work with more or less the same input as their comparison is less ambiguous. \\
+The resulting choices were following. We set window width $w$ to 0.2 and window overlap $w_o$ to 0.5$w$ = 0.1. For mel-spectrograms it is also necessary to choose Mel frequency bands which was set to 320 as for values above 320, the performance of neural networks did not increase. For MFCC coefficients we decided to set the number of MFCC coefficients to 320 which is the same as the number of Mel frequency bands.
+
+We used Python's \texttt{librosa} library \cite{brian_mcfee_2019_2564164} to cut our songs and to generate our spectrograms, mel spectrograms and MFCCS using functions \texttt{librosa.core.stft} for spectrograms \texttt{librosa.feature.mel_spectrogram} for mel-spectrograms and \texttt{librosa.feature.mfcc} for MFC coeficients. The audio data for training was stored in .wav files.
+
+\subsection{Raw Mel spectrograms}\label{ssec:raw_mels}
+The input for mel spectrograms was the 15 second long audio described in \ref{ssec:audio_prep}. Extracting spectrograms does not require any training. It a is mathematical procedure explained in \ref{ssec:mel_spectrograms_intro}.
+
+The mel-spectrograms we got after transforming a 15 second long audio with 320 Mel frequencies bands was a matrix of size 408x320 which when flattened is a vector of size 130560. This turned out to be too long to implement in our application, however because we did not realize that at first, we tested this method and got the following results.
+
+\subsubsectio{Results}
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabu} to 1\textwidth { | c || X[c] | X[c] | X[c] | X[c] | X[c] |}
+ \hline
+ \textbf{method} & \textbf{R@10} & \textbf{R@50} & \textbf{R@100} & \textbf{nGDC} & $ \boldsymbol{\overline{rank}} $ \\
+ \hline
+ \hline
+ Raw mel spectrograms & 0.03696 & 0.04275 & 0.0473 & 0.03063 & 7604 \\
+ \hline
+\end{tabu} \\
+\caption{Table summarizing average rank values for all methods with mel-spectrogram input averaged over the 5 cross validations}
+\label{table:mel_spec_methods}
+\end{table}
 
 \section{Text and audio method comparison}
 
