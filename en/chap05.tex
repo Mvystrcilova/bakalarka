@@ -194,12 +194,13 @@ In order to encode audios of songs, we first needed to acquire some form of the 
 It was also necessary to decide on some parameters for spectrograms, mel-spectrograms and MFCCs. As stated previously, our neural networks were inspired by \cite{inproceedings_RNNs} where they also performed parameter optimisation. We decided to use their parameters as input for all our methods. It is possible that some parameters values suite some methods better than others but because of the amount of methods we tested we decided it would too difficult to optimise them for each method. We also think, that it a good idea to have all methods work with more or less the same input as their comparison is less ambiguous. \\
 The resulting choices were following. We set window width $w$ to 0.2 and window overlap $w_o$ to 0.5$w$ = 0.1. For mel-spectrograms it is also necessary to choose Mel frequency bands which was set to 320 as for values above 320, the performance of neural networks did not increase. For MFCC coefficients we decided to set the number of MFCC coefficients to 320 which is the same as the number of Mel frequency bands.
 
-We used Python's \texttt{librosa} library \cite{brian_mcfee_2019_2564164} to cut our songs and to generate our spectrograms, mel spectrograms and MFCCS using functions \texttt{librosa.core.stft} for spectrograms \texttt{librosa.feature.mel_spectrogram} for mel-spectrograms and \texttt{librosa.feature.mfcc} for MFC coeficients. The audio data for training was stored in .wav files.
+We used Python's \texttt{librosa} library \cite{brian_mcfee_2019_2564164} to cut our songs and to generate our spectrograms, mel spectrograms and MFCCS using functions \texttt{librosa.core.stft} for spectrograms \texttt{librosa.feature.mel\_spectrogram} for mel-spectrograms and \texttt{librosa.feature.mfcc} for MFC coeficients. The audio data for training was stored in .wav files.
 
 \subsection{Raw Mel spectrograms}\label{ssec:raw_mels}
 The input for mel spectrograms was the 15 second long audio described in \ref{ssec:audio_prep}. Extracting spectrograms does not require any training. It a is mathematical procedure explained in \ref{ssec:mel_spectrograms_intro}.
 
-The mel-spectrograms we got after transforming a 15 second long audio with 320 Mel frequencies bands was a matrix of size 408x320 which when flattened is a vector of size 130560. This turned out to be too long to implement in our application, however because we did not realize that at first, we tested this method and got the following results.
+The mel-spectrograms we got after transforming a 15 second long audio with 320 Mel frequencies bands was a matrix of size 408x320 which when flattened is a vector of size 130560. This turned out to be too long to implement in our application, however because we did not realize that at first, we tested this method and got the following results. \\
+As can be seen in \ref{table:mel_spec_methods} 3.7\% of songs ended up between top ten predictions, 4.3\% in top 50 and 4.7\% in the top 100. These results are actually better than any other method using mel-spectrograms as input except of PCA. It beats both neural network architectures with mel-spectrogram input. 
 
 \subsubsectio{Results}
 \begin{table}[h!]
@@ -212,12 +213,133 @@ The mel-spectrograms we got after transforming a 15 second long audio with 320 M
  \hline
  Raw mel spectrograms & 0.03696 & 0.04275 & 0.0473 & 0.03063 & 7604 \\
  \hline
+ PCA on Mel spectrograms & 0.052425 & 0.061527 & 0.067374 & 0.042999 & 6851 \\
+ \hline
+ GRU on Mel spectrograms & 0.036229 & 0.043355 & 0.048697 & 0.031191 & 7601 \\
+ \hline
+ LSTM on Mel spectrograms & 0.013677 & 0.020278 & 0.025787 & 0.014228 & 7861\\
 \end{tabu} \\
 \caption{Table summarizing average rank values for all methods with mel-spectrogram input averaged over the 5 cross validations}
 \label{table:mel_spec_methods}
 \end{table}
 
-\section{Text and audio method comparison}
+The patterns observed in \ref{fig:mel_graph} which shows the distribution of ranks for raw mel-spectrograms is similar to all other methods we are studying (except of those that appear to be random such as SOM). The ranking is better when predicting ranks of songs from shorter playlists. 
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[width=120mm]{./img/mel_graph.png}
+	\caption{Distribution of ranks of songs from the test with their similairity defined as cosine distance between mel-spectrograms.}
+	\label{fig:mel_graph}
+\end{figure}
+
+\subsection{Raw MFCCs}
+Our 15 second audios were fed as input into the texttt{librosa.feature.mfcc()} function with parameters mentioned in \ref{ssec:audio_prep}. Training was not necessary since acquiring mel-frequency cepstral coefficient is a matter of Fourier Transformations and the resulting matrix had the shape of 646x128. When flattened we get a vector of length 82866. This has proven to be too long for practical use in our application, however we still have the evaluation results when defining song similarity as the cosine distance between flattened MFCC matrices.
+
+\subsubsection{Results}
+
+The results of MFCCs are quite poor even compared to our other methods. Only 0.4\% of songs missing in our playlists rank betwen the top 10, 0.9\% in the top 50 and 1.4\% in the top 100. However as can be seen in table \ref{table:mfcc_methods} it is better than when using mfc coefficients with our LSTM network.
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabu} to 1\textwidth { | c || X[c] | X[c] | c | X[c] | X[c] |}
+ \hline
+ \textbf{method} & \textbf{R@10} & \textbf{R@50} & \textbf{R@100} & \textbf{nGDC} & $ \boldsymbol{\overline{rank}} $ \\
+ \hline
+ \hline
+ Raw MFC coefficients & 0.00415 & 0.00919 & 0.01423 & 0.00607 &  7552 \\
+ \hline
+ MFCC with LSTM network & 0.00246 & 0.00674 & 0.0116 & 0.00436 & 7665 \\
+ \hline
+ MFCC with GRU network & 0.0051 & 0.01148 & 0.01755 & 0.00721 & 7391 \\
+ \hline
+\end{tabu} \\
+
+\caption{Table summarizing average rank values for all methods with MFCC input averaged over the 5 cross validations}
+\label{table:mfcc_methods}
+\end{table}
+
+ When looking at our traditional distribution graph, we again observe the a lower probability of good song rankings as the length of playlists increases. Again completely against what we hope for. 
+\begin{figure}[h]
+    \centering
+	\includegraphics[width=120mm]{./img/mfcc_graph.png}
+	\caption{Distribution of ranks of songs from the test set the MFCC method assigned them.}
+	\label{fig:mfcc_graph}
+\end{figure}
+
+
+\subsection {PCA on spectrograms}
+
+\subsubsection{Input}
+We used spectrograms as described in \ref{ssec:audio_prep} as input for our PCA. Because the output of the \texttt{librosa.core.stft()} method is a complex matrix, we computed the absolute value for each matrix entry. Afterwards, we flattened the matrix into a single vector and normalized it. Normalization was very important, without it, the resulting rankings were almost random.
+
+\subsubsection{Training}
+Training proved to be a little bit challenging with input vectors of length 900048. As the whole (16594x900048) matrix did not fit into the PCA at once instead of using \texttt{sklearn.decomposition.PCA} we turned to \texttt{sklearn.decomposition.incrementalPCA} where it is possible to train the PCA in batches. Our batch size was 1106. Again, when we tried to increase it, we got a memory error. This was a little inconvenient as for the PCA the maximum number of components is $min(n\_samples, n\_features)$. In our case, $n\_samples$ was only 1106 components which explained about 57\% of the dataset's variance.
+
+\subsubsectio{Output}
+Our output were vectors of length 1106 which we acquired when taking the trained incremental PCA model and calling \texttt{tranform()} with the spectrogram as a parameter.
+
+\subsubsection{Results}
+The dimensionality reduction in this method was the biggest of all or our methods. Our song representation went from 900048 to 1106 dimensions. It seems though that even with only 57\% of explained variance this methods results were very good compared to other methods. \\
+When seeing this, we decided to go for a even more radical reduction to vectors of length 320. This was inspired by the length of the W2V vectors. We called our bigger model $PCA_{1106}$ and our smaller model $PCA_{320}. $ The results of the smaller model were even better than those of the big one. This is especially interesting because the same tendencies were not observed in the case of PCAs with Mel-spectrogram inputs as will be illustrated later.
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabu} to 1\textwidth { | c || c | c | c | c | c |}
+ \hline
+ \textbf{method} & \textbf{R@10} & \textbf{R@50} & \textbf{R@100} & \textbf{nGDC} & $ \boldsymbol{\overline{rank}} $ \\
+ \hline
+ \hline
+ $PCA_{1106}$ on raw spectrograms & 0.04317 & 0.05213 &  0.05945 & 0.03741 & 6729 \\
+ \hline
+ $PCA_{320}$ on raw spectrograms & 0.04317 & 0.05213 &  0.05945 & 0.03741 & 6729 \\
+ \hline
+ GRU on raw spectrograms & 0.002136 & 0.005627 & 0.009994 & 0.003559 & 7710 \\
+ \hline
+ LSTM on raw spectrograms & 0.00924 & 0.01595 & 0.02214 & 0.0106 & 7601\\
+ \hline
+\end{tabu} \\
+\caption{Table summarizing average rank values for all methods with spectrogram input averaged over the 5 cross validations}
+\label{table:spec_methods}
+\end{table}
+
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{./img/pca_spec_1106_graph.png}
+  \captionof{Distribution of ranks of songs from the $p_{test}$ set the spectrograms method assigned them.}
+  \label{fig:pca_spec_1106_distribution}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{./img/pca_spec_320_graph.png}
+  \captionof{Distribution of ranks of songs from the $p_{test}$ for spectrograms vectors as input into PCA}
+  \label{fig:pca_spec_320_distribution}
+\end{minipage}
+\end{figure}
+
+\subsection{PCA with Mel-spectrograms}
+\subsubsection{Input}
+The input for our Mel-PCA were mel-spectrograms from \ref{ssec:audio_prep} which were flattened and normalized using a \texttt{MinMaxScaler} from the \texttt{sklearn} Python package.
+
+\subsubsection{Training}
+Unlike with the spectrograms, mel-spectrograms fit into the memory so the PCA was able to train with the whole dataset at once. This allowed us again to find out what number of components explaines 90\% of the variance ratio and to use it. We found that 90\% of variance is explained by 5715 components which is also what we used to train our first model. \\
+We were quite pleased by the results as it is the best method that we came up with. Therefore we were quite hopeful when reducing the dimension even more to 320 as we did with PCA on spectrograms. We again created two models, one is called the $Mel\_PCA_{5715}$ the other the $Mel\_PCA_{320}$. 
+
+\subsubsection{Output}
+Our output for the bigger model was a vector of length 5715, for the smaller model, it was a vector of length 320.
+
+\subsubsection{Results}
+To our dissapointment, the more radical dimension reduction did not improve the performance of the Mel-spectrogram PCA method. It actually worsened the results significantly as can be observed in \ref{table:mel_spec_methods}. 
+\subsection{GRU network with spectrogram input}
+\subsection{LSTM network with spectrogram input}
+\subsection{GRU network with Mel-spectrogram input}
+\subsection{LSTM network with Mel-spectrogram input}
+\subsection{GRU network with MFCC input}
+\subsection{LSTM network with MFCC input}
+
+\subsection{}
 
 \section{Discussion}
 
