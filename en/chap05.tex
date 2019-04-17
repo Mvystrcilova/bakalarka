@@ -154,13 +154,13 @@ When looking at the distribution graph, it is very clear that the gap here betwe
 \subsection{SOM experiments}
 We used a python library called \texttt{minisom} \cite{Vettigli2019}
 \subsubsection{Input}
-We chose the W2V vectors from \ref{ssec:w2v_experiments} as input for our self organizing map, mainly because of their length and also because we were hoping, that the SOM could improve its results.
+We tried the W2V vectors from \ref{ssec:w2v_experiments} as input for our self organizing map, mainly because of their length and also because we were hoping, that the SOM could improve the results of the W2V method. We also tried to train the SOM on the output vectors of our PCA\_Tf-idf method. We did not try the raw Tf-idf vectors as they are long and it would prolong training significantly and also, because the PCA\_Tf-idf yielded better results than raw Tf-idf.
 
 \subsubsection{Training}
 We build a self organizing map with a grid size 5 times our dataset size (16594) and the number of iterations was also 5 times our dataset size. We saved a model after each multiple of 16594 iterations and interestingly, the representations did not change after 33 187 iterations (meaning 2*16594). It was also necessary to normalize our input vectors and set learning rate to 0.2. Otherwise the songs formed 3 to 5 large clusters on the grid placing thousands of songs on the same coordinate. 
 \subsubsection{Output}
 The output representation for each song was a vector of length two. The whole dataset then could be displayed on a 2D map. 
-When we then tried to display the map with all the songs, the size of the image would have to be immense so that all 16594 songs would be recognizable. The problem was that there were many songs to display on the map and the titles overlapped. Because of that, we decided to randomly select 20 playlists and show where the different songs that belong to each playlist placed on the map. Each playlist has its own color. This map is depicted in \ref{fig:som_map}. Obviously, the playlists do not really form any visible clusters.
+When we then tried to display the map with all the songs, the size of the image would have to be immense so that all 16594 songs would be recognizable. The problem was that there were many songs to display on the map and the titles overlapped. Because of that, we decided to randomly select 20 playlists and show where the different songs that belong to each playlist placed on the map. Each playlist has its own color. This map for the W2V input is depicted in \ref{fig:som_map}. Obviously, the playlists do not really form any visible clusters.
 \begin{figure}[h]
     \centering
 	\includegraphics[width=140mm]{./img/som_map.png}
@@ -180,12 +180,13 @@ The fact that the playlists do not form clusters is also supported by the fact t
  \hline
  SOM with W2V & 0.00084 & 0.0038 & 0.00664 & 0.00192 & 8152 \\
  \hline
+ SOM wiht PCA_Tf-idf & 0.000435 & 0.002084 & 0.004621 & 0.001254 & 8243 \\
+ \hline
 \end{tabu} \\
 \caption{Table summarizing average SOM values averaged over the 5 cross validations}
 \label{table:som}
 \end{table}
-
-The distribution graph of the SOM method clearly shows, that the distribution of ranks is random or worse which is also suggested by the fact that the average rank is 8152 which almost in the middle of 16594. The main reason for the failure of this method is unclear but it is possible that the data from the W2V vectors that already contains too little information for the SOM network to be able to cluster data based on it. Another possibility could be, that even if the input vectors were longer or contained more information, the SOM network would not be able to provide satisfying results because two dimensions are simply too little to represent the complexity of 
+The distribution graph of the SOM\_W2V method clearly shows, that the distribution of ranks is random or worse which is also suggested by the fact that the average rank is 8152 which almost in the middle of 16594. The main reason for the failure of this method is unclear but it is possible that the data from the W2V vectors that already contain too little information for the SOM network to be able to cluster data based on it.  But since we recieved even worse results for the SOM\_Tf-id we are more inclined to another possibility which is, that the SOM network is not be able to provide satisfying results because two dimensions are simply too little to represent the whole complexity of the input data.
 \begin{figure}[h]
     \centering
 	\includegraphics[width=120mm]{./img/som_w2v_graph.png}
@@ -458,20 +459,72 @@ A thing worth noting here is that with the shorter encoding vector the results w
 \end{minipage}
 \end{figure}\label{fig:lstm_spec_distributions}
 
-\subsection{GRU network with Mel-spectrogram input}
-\subsection{LSTM network with Mel-spectrogram input}
-\subsection{GRU network with MFCC input}
-\subsection{LSTM network with MFCC input}
+\subsection{GRU and LSTM networks with Mel-spectrogram input}
 
+\subsubsection{Training}
+The GRU\_mel and LSTM\_mel networks were both trained under the same conditions. We trained them on our mel-spectrograms for 150 epochs with a batch size of 256. With a higher batch size we got a memory error. The output length of the encoded song vector was based on variance ratio of the PCA\_mel (same as for networks with neural networsk with spectrogram input). We did not attempt any further reductions here partly because further dimensionality reduction in PCA\_mel\_320 greatly hurt the performance and partly because as stated before, only the features can be reduced by GRU and LSTM layers meaning, that we have to have vectors of length of at least 408 and to scale the features down to one or two might lead to same results as with our SOM methods.
+
+\subsubsection{Results}
+Mel-spectrograms seem to be the best kind of input we have and the GRU\_mel and LSTM\_mel networks confirm it as they have the best results within the neural network method group. The GRU\_mel network performed better than the one with LSTM layers and also showed the smallest loss in training. The difference in ranking accuracy is quite big. Figure \ref{fig:mel_nn_distributions} exposes another thing worth noting which the big difference between short and long playlist rankings for both methods. \\
+Table \ref{table:mel_spec_methods} puts recalls and nDGC of our "mel" neural networks into perspective with other "mel" methods.
+As we can see, the GRU\_mel network placed 3.6\% of songs into the top 10, 4.3\% into the top 50 and 4.9\% into the top 100. This is worse than the raw mel-spectrogram method for \textit{R@10} but for \textit{R@50} and \textit{R@100} it shows better results. The GRU\_mel network is almost twice as bad and places as our second worst "mel" method with only 1.4\% of songs in the top 10, 2\% of songs in the top 100 and 2.6\% of songs with assigned ranks in the top 100.
+
+\begin{figure}[h!]
+\centering
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{./img/gru_mel_graph.png}
+  \captionof{An RDG of the GRU\_mel method}
+  \label{fig:gru_mel_distribution}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{./img/lstm_mel_graph.png}
+  \captionof{An RDG of the LSTM\_mel method}
+  \label{fig:gru_mel_distribution}
+\end{minipage}
+\end{figure}\label{fig:mel_nn_distributions}
+
+\subsection{GRU and LSTM networks with MFCC input}
+
+\subsubsection{Training}
+At first we did not plan on using MFCCs as input into neural networks. However because it turned out the the raw MFCCs are too long to be used in our application directly we decided it would be a shame to just leave them out and tried to reduce their dimension again with both our GRU and LSTM network architectures. \\ 
+We trained both architectures with 150 epochs and a batch size of 256 which is the same as the neural networks having mel-spectrograms as input. 
+
+\subsubsection{Results}
+
+The MFCC networks seem to have the biggest potential of improving if they were to be trained for a longer period of time as their plots in Figure \ref{fig:all_model_training} especially the GRU\_MFCC one does not stagnate as much as the other networks. They would however probably never decrease their loss to be as small as for the "mel" networks. \\
+Compared to the raw MFCCs the GRU\_MFCC meant an improvement whereas the LSTM\_MFCC an impairment as the values in \ref{table:mfcc_methods} suggest. The Figure \ref{fig:mfcc_nn_distributions} containing both method's \textit{RDGs} confirms the superiority of the GRU\_MFCC method over the LSTM\_MFCC. What is interesting about the LSTM\_MFCC is the fact, that the ranks for shorter playlists are not as notable as with most other methods like for example the GRU\_MFCC method where the difference is considerable.
+
+\begin{figure}[h!]
+\centering
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{./img/gru_mfcc_graph.png}
+  \caption{The RDG of GRU\_MFCC}
+  \label{fig:gru_mfcc_distribution}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{./img/lstm_mfcc_graph.png}
+  \caption{The RDG of LSMT\_MFCC}
+  \label{fig:gru_mfcc_distribution}
+\end{minipage}
+\end{figure}\label{fig:mfcc_nn_distributions}
+
+
+
+\section{Discussion}\label{sec:discussion}
+
+All the experiments we performed yielded a lot of data, to be fair more than we planned. In this discussion we try to compare our findings with the expectations we had and interpret their similarities and differences. Overall we have to admit that the results we obtained were worse than we thought they were going to be. We will try to explain the reasons. \\
+The thing that was apparent in almost all methods was the decrease of top ranking for songs from $ p_{test}$ that were a part of a longer playlist. We thought that this is actually a thing that we could fix. The fact that shorter playlists have better rankings suggests that the users have groups of songs in their playlists that are very similar to each other but the groups can be quite dissimilar and that songs, that are somewhat similar to all groups "pollute" the recommendations. Therefore, we decided to evaluate all methods again with a distance threshold. We actually meant to do this even before we knew that our methods perform better on shorter playlists because we thought that it is better not to save all distances into the web-applications database but only the top $n$. \\
+We chose the threshold separately for each method as the 846297th biggest similarity. It may seem as a strange random number but is is $51*|dataset|$ where . It gives us about 50 most similar songs for each song and the additional 1 is to get 50 even though we will always include the most similar one which is the same one. \\
+This significantly changed and in many cases improved the performances of our methods. We decided not to include all the new distribution graphs again, \todo{Mohla bych je dat do attachmentu} but we decided to include at least a table comparing the other evaluation measures we chose. \todo{SEM dat table nebo graf? tech novejch metod}.\\
+
+Even with the threshold improvement, our results are still worse than we were hoping for. 
 \begin{figure}[h]
     \centering
 	\includegraphics[width=120mm]{./img/all_training_graphs.png}
 	\caption{The training mean squared error loss values for all the final neural networks we trained.}
 	\label{fig:all_model_training}
 \end{figure}
-
-
-\section{Discussion}\label{sec:discussion}
-
-\section{Resulting measure implementation}
-Tady by mohl bejt ten bandita nebo tak neco.
