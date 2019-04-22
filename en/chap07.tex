@@ -3,13 +3,36 @@
 In this section, we will describe the pro-posed web application for novel song recommendation.  The section is structured as follows: 
 \begin{itemize}
     \item 1. We analyze our application goals and describe what the user can expect from our application.
-    \item 2. We describe the methods we used in our application and the obstacles we had to overcome with their individual implementations to provide the user with the behaviour as described in 1.
-    \item 3. We briefly introduce the building blocks of our application with focus on the calculation of recommendations.
-    \item 4. We present the possible configurations of our application.
+    \item 2. We briefly introduce the building blocks of our application with focus on the individual similarity measures implementation and calculation of recommendations.
+    \item 3. We present the possible configurations of our application.
 \end{itemize}
 
 \section{Analysis}
 
 There are many music recommendation web applications online such as Youtube, Spotify etc. They have a lot of data about users, user activity, a lot of songs, a lot of tags. Our application is just a small project that does not aspire on growing to such extend. What we want to provide to our users are not endless playlists but more of an inspiration to find new songs and then play them (for exapmle on Youtube). \\
 We obviously want our application to have the usual web application functionalities, such as creating and account, logging in and out, going through different web pages, etc. Because it is a song recommendation application, we want our users to be able to view their recommendations, create playlists and search for songs and like and dislike songs to improve the recommendations. Besides that we want the users to be able to add songs they already know and that are missing in our database and then see, which similarity methods yield which recommendations. Even if he does not like the recommended song, it might be interesting for him to see, that some song was recommended to him based on another song when looking at for example lyrics. It gives the user a more hands on experience and is so not only about music but also a bit about statistics and math. I know, this might limit the user pool to nerds, but oh well.\\
-To do this, we need to 
+
+\section{Implementation}
+In this section, we present the overall architecture of our application with focus on the recommendation functionalities which are described n more detail. 
+
+\subsection{Nevim, jak to pojmenovat}
+
+We build our web application in the Django framework in Python 3.5. We chose Python because it is well suited for machine learning and Django because it is a Python based framework. Besides this, to ensure a smooth user experience while performing complex computational tasks, we included Celery \footnote{http://www.celeryproject.org} which is a asynchronous task queue to run expensive tasks in the background. We used RabbitMQ \footnote{https://www.rabbitmq.com} as Celery's message broker.
+
+\subsubsection{Client}
+
+\subsubsection{Server}
+
+\subsection{Design}
+
+\subsubsection{Models and Database}
+
+\subsubsection{Views}
+
+
+\subsection{Similarity measure implementation}
+
+In Chapter \ref{chap:experiments} we did not finalize our method selection, we just summarized their performance results. That is because to implement them, we cannot only look at their performance but also at their computational properties --- time and space complexities. \\
+There are three main events that trigger the songs similarities calculations and recalculations in the application. First is the one when a user adds a new song. The song's mp3 is downloaded from the link the user provides, then the 15 second audio excerpt is created and turned into a spectrogram, mel-spectrogram and MFCC which are then input for audio method models. The songs lyrics are also stripped of punctuational characters and prepared as input for the lyric methods. This is not the end. The application then calculates the similarity of this song to all the other songs in the database for each measure separately. Afterwards, the similarity of the song to other users and to all the lists in the database is calculated. \\
+Secondly, the user can add a song to a list. In that case, the similarities of all songs to this list are recalculated. The third event is liking or disliking a song by a user, which results in recalculating similarities of all songs to this user's taste. \\
+These are quite time consuming 
