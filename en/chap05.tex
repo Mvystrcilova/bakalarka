@@ -1,7 +1,7 @@
 \chapter{Experiments}\label{chap:experiments}
 
-In this chapter we describe how the chosen song encoding methods were implemented. This includes describing the input, training (if there was any) and output (meaning the vector-encoded representations for each song in our 16594 songs dataset). Another thing we did not cover yet and so will be presented here is describing how the different vector representations will be aggregated into a definition of similarity.\\
-We also acquaint the reader with our evaluation methods, the reason we decided to use them and the evaluation results for each method. The results are first presented separately for each method (or a group of closely related methods) and then summarized and most importantly interpreted in the \ref{sec:discussion} where various graphs and tables illustrating the prominent or interesting trends and tendencies can be found. Before all this however, we start with stating what the expected outcomes were before we even started.
+In this chapter we describe the experiments we performed on song preprocessing methods chosen in Chapters \ref{chap:lyrics_methods} and \ref{chap:audio_methods}. This includes describing the input, training (if there was any) and output (meaning the vector-encoded representations for each song in the SD) which is all presented in Sections \ref{sec:text_experiments}, \ref{sec:simple_audio_experiments} and \ref{sec:deep_audio_experiments}. Another thing we did not cover yet and will be presented here in Section \ref{sec:similarity_metrics} is describing how the different vector representations will be aggregated into a definition of similarity.\\
+In Section \ref{ssec:evaluation_measures} we acquaint the reader with evaluation methods, the reasons we decided to use them and the evaluation results for each method. The results are first presented separately for each method (or a group of closely related methods) in Sections \ref{sec:text_results}, \ref{sec:simple_audio_resutls} and \ref{sec:deep_audio_results}, then summarized and most importantly interpreted in Section \ref{sec:discussion} where various graphs and tables illustrating the prominent or interesting trends and tendencies can be found. Before all this however, we start with stating what the expected outcomes were initially.
 
 \section{Expectations}
 
@@ -9,37 +9,76 @@ Even before reading any literature, we made three main predictions.
 \begin{itemize}
     \item \textbf{First:} Audio-based methods will perform better than text-based methods.
     \item \textbf{Second:} More advanced methods will outperform simpler machine learning methods.
-    \item \textbf{Third:} More advanced methods are going to be more time consuming.
-\end{itemize} \\
-By more advanced methods we mean methods that were created more recently, are more computationally expensive and\\or have a more complicated mathematical idea behind them. \\
-The first prediction was mostly based on the intuition, that audio contains more information about the song than the lyrics and it is also what people care about more when listening to music so it should be valid for song encoding. \\
-The second prediction was also based on our intuition and later also supported by reading into this topic, where most of the papers we studied (meaning those in Sections \ref{sec:audio_related_work} and \ref{sec:text_related_work}) were describing neural networks performing similar audio or text-based recommendation or classification and their results were compared to simpler algorithms. \\
-We were also hoping, that the text-based methods will not be complete irrelevant.
+    \item \textbf{Third:} More advanced methods are going to be more time consuming.\\
+\end{itemize} 
+By more advanced methods we mean methods that were created more recently, are more computationally expensive and/or have a more complicated mathematical idea behind them. \\
+The first prediction was mostly based on the intuition, that audio contains more information about a song than the lyrics and it is also what people care about more when listening to music so it should be more valid for song encoding. \\
+The second prediction was also based on intuition and later also supported by reading into this topic, where most of the papers we studied (meaning those in Sections \ref{sec:audio_related_work} and \ref{sec:text_related_work}) were describing neural networks performing audio or text-based recommendation or classification and their results were compared to simpler algorithms. \\
 
-\section{Text method experiments}
+\section{Nevim, neco jako uvod k experimentum}
+For each method, we created two matrices while training, the \textit{Representation matrix} denoted as  $R_m$ where $m$ stands for a particular method and the \textit{Distance matrix} denoted as $D_m$. Each $R_m$ has the shape of ($16594$ x $l(v_m) $) where $l(v_m)$ is the length of the song vector representation for method $m$ and row $R_{m_{i,*}}$ contains the representation of $s_i$ using method $m$ is.\\
+The shape of the $D_m$ is ($16594 $x$ 16594$) and it is the same regardless of the method. On position $D_{m_{i,j}}$ is the similarity of $R_{m_{i,*}}$ and $R_{m_{j,*}}$. We talk more about similarity in Section \ref{sec:similarity_metrics}. \\
+To make things easier for the rest of the thesis we will now present all the methods that were tested and introduce a nomenclature. \\
+There are 3 different parts each method name has. The name of the main algorithm, the name of the input and the length of the output vector. Every method can be uniquely identified by a combination of these three parts. Where there is only one or two parts necessary, we omit those which are surplus. \\
+The tested methods are:
+\renewcommand\labelitemii{\textperiodcentered}
+\begin{itemize}
+     \item \textbf{Tf-idf} which stands for the Tf-idf method. \\
+        Training is described in \ref{ssec:TF_idf_experiments} and the results in \ref{ssec:tf_idf_results}.
+    \item \textbf{PCA\_Tf-idf} which stands for PCA with Tf-idf vectors as input. \\
+    Training is described in \ref{ssec:PCA_on_tf_idf_experiments} and the esults in \ref{ssec:pca_tf-idf_results}.
+    \item \textbf{W2V} which represents the Word2Vec method. \\
+        The training is described in \ref{ssec:w2v_experiments} and the results in \ref{ssec:w2v_results}.
+    \item \textbf{SOM\_PCA\_Tf-idf} and \textbf{SOM\_W2V} which stand for the SOM network with PCA\_Tf-idf vectors as input and the SOM network with W2V vectors as input. \\
+            Training is described in \ref{ssec:som_experiments} and the results in \ref{ssec:som_results}.
+    \item \textbf{Raw mels} which are raw mel-spectrograms. \\
+             Training described in \ref{ssec:raw_mels_experiments} and the results in \ref{ssec:mel_results}.
+    \item \textbf{Raw MFCCs} which are raw MFCCs. \\
+        Training is described in \ref{ssec:raw_mfccs_experiments} and the results in \ref{ssec:raw_mfccs_results}
+    \item \textbf{PCA\_spec\_1106} and \textbf{PCA\_spec\_320} which stand for PCA with spectrograms as input and output lengths of 1,106 for the first method and 320 for the second method. \\
+        Training is described in \ref{ssec:PCA_spec_experiments} and the results in \ref{ssec:pca_spec_results}.
+    \item \textbf{PCA\_mel\_5715} and \textbf{PCA\_mel\_320} which stand for the PCA with mel-spectrograms as input and the output length of 5,715 for the first method and 320 for the second method. \\
+        Training is described in \ref{ssec:pca_mel_experiments} and the results in \ref{ssec:pca_mel_results}.
+    \item \textbf{GRU\_spec\_20400} and \textbf{GRU\_spec\_5712} which stand for an RNN with GRU layers and spectrogram input. The output vectors have length 20,400 for the first method and 5,712 for the second method. \\
+    The architecture is described in \ref{ssec:nn_architectures}, training is described in \ref{ssec:GRU_spec_experiments} and the results in \ref{ssec:gru_spec_results}.
+    \item \textbf{LSTM\_spec\_20400} and \textbf{LSTM\_spec\_5712} which stand for an RNN with LSTM layers and spectrogram input. \\
+        The architecture is described in \ref{ssec:nn_architectures}, training is described in \ref{ssec:LSTM_spec_experiments} and the results in \ref{ssec:LSTM_spec_results}.
+    \item \textbf{GRU\_mel} which stands for an RNN with GRU layers and mel- spectrogram input. \\
+        The architecture is described in \ref{ssec:nn_architectures}, training is described in \ref{ssec:GRU_LSTM_mel_experiments} and the results in \ref{ssec:GRU_LSTM_mel_results}.
+    \item \textbf{LSTM\_mel} which stands for an RNN with LSTM layers and mel- spectrogram input. \\
+    The architecture is described in \ref{ssec:nn_architectures}, training is described in \ref{ssec:GRU_LSTM_mel_experiments} and the results in \ref{ssec:GRU_LSTM_mel_results}.
+    \item \textbf{GRU\_MFCC} which stands for an RNN with GRU layers and MFCCs as input. \\
+        The architecture is described in \ref{ssec:nn_architectures}, training is described in \ref{ssec:GRU_LSTM_MFCC_experiments} and the results in \ref{ssec:GRU_LSTM_MFCC_results}.
+    \item \textbf{LSTM\_MFCC} which stands for an RNN with LSTM layers and MFCCs as input. \\
+        The architecture is described in \ref{ssec:nn_architectures}, training is described in \ref{ssec:GRU_LSTM_MFCC_experiments} and the results in \ref{ssec:GRU_LSTM_MFCC_results}.
 
-\subsection{Tf-idf experiments}\label{ssec:TF_idf}
+    
+\end{itemize}
+
+\section{Text method experiments}\label{sec:text_experiments}
+
+\subsection{Tf-idf experiments}\label{ssec:TF_idf_experiments}
 
 \subsubsection{Input}
-The lyrics for each song were stripped of all punctuation characters as well as apostrophes, converted into a single string. 
+The lyrics of each song were stripped of all punctuation characters as well as apostrophes and converted into a single string. All lyric-string were appended to form the training dataset.
 \subsubsection{Training}
-Each lyric-string was appended to the whole training dataset which was then passed to an instance of \texttt{sklearn.feature\_extraction.text.TFidfVectorizer} where the method \texttt{fit\_transform} was called. The results were saved into a numpy file containing a sparse matrix. And the model was saved using pickle. \\
+The training dataset was given to the \texttt{fit\_transform} method as a parameter. \texttt{fit\_transform} was called on an instance of \texttt{TFidfVectorizer} from the \texttt{sklearn} package. The results were converted from sparse into dense vectors and saved into the $R_{Tf-idf}$. The \texttt{TFidfVectorizer} instance was saved to be potentially used in the proposed web application. \\
 
 \subsubsection{Output}
-The song representation were vectors of length 40165. They contained a lot of zeros so it was possible to store them as \textit{sparse vectors} however, is is more difficult to store a sparse vector in a database than it is with dense vectors and we would probably have to save them separately in files.
+The song representations were vectors of length 40165. They contained a lot of zeros so it was possible to store them as \textit{sparse vectors}. Sparse vectors however, is more difficult to store a sparse vector in a database than it is with dense vectors so we converted them to dense vectors before saving them.
 
-\subsection{PCA on Tf-idf}\label{ssec:PCA_on_tf_idf}
+\subsection{PCA on Tf-idf}\label{ssec:PCA_on_tf_idf_experiments}
 
-Because Tf-idf has proven to yield good results we wanted to implement it. The long vectors pose a problem to our web application though, as it is necessary to calculate the distance between a newly added song and all the songs that are already in the database which is more complex for longer vectors. Since the machine on which our application is running does not have such computational power as those we run our evaluations on, we decided to try to reduce the dimensions using PCA because it has proven to be quite effective with mel spectrograms.
+Because simple Tf-idf yielded good results we wanted to implement it. The long vectors posed a problem to our web application though. It is sometimes necessary in the application to calculate the distance between a newly added song and all the songs that are already in the database and this calculation is more complex for longer vectors. To reduce the complexity of this task but still use Tf-idf we decided to try to reduce the dimensions using PCA.
 
 \subsubsection{Input}
-As input, we provided the Tf-idf vectors which we acquired as described \ref{ssec:TF_idf}. We did not normalize them.
+As input, we provided the Tf-idf vectors to the PCA which we acquired as described \ref{ssec:TF_idf_experiments}. We did not normalize them.
 
 \subsubsection{Training}
-For training we first run a PCA from Python's \texttt{sklearn.decomposition.PCA}. We then chose the space were the explained variance ratio was equal to 90\% which left us with 4457 features. This means, our Tf-idf vector went from 40165 to 4457 dimensions. 
+We first trained a PCA from Python's \texttt{sklearn.decomposition.PCA} without any dimensionality reduction. We then chose a space were the explained variance ratio was equal to 90\%. This space had 4,457 dimensions. Knowing this, we trained a new PCA with 4,457 components which reduced our Tf-idf vector's length from 40,165 to 4,457.
 
 \subsubsection{Output}
-The output were vectors of length 4457.
+The output were vectors of length 4457 which we saved to the $R_{PCA\_Tf-idf}$.
 
 \subsection{Word2Vec experiments}\label{ssec:w2v_experiments}
 
@@ -47,12 +86,13 @@ The output were vectors of length 4457.
 The input for our W2V model was the same as for the Tf-idf method.
 
 \subsubsection{Training}
-In the case of Word2Vec, we did not perform any training. Instead, we used a pre-trained W2V model from Google \todo{odkaz nebo reference!!} (the first 200000 words which covered all meaningful words in our lyric dataset). If there was a word in a song that is not in our subset added in the web application, would be ignored. Because the Google model takes always just one word as input and produces it's vector, we had to put the vectors together into one song representation. We chose a basic approach where we summed all the vectors and computed the averaged the values in each \todo{Tady to slovo, proste jeden prvek toho vektoru}
+In the case of Word2Vec, we did not perform any training. Instead, we used the first 200000 words which cover all meaningful words in the song lyrics we have from a pre-trained W2V model from Google \footnote{https://code.google.com/archive/p/word2vec/}. \\
+If there was a word in a song that was not in the subset it was ignored. 
 
 \subsubsection{Output}
-The output for a word when transformed by the Google model is a vector of fixed length 300. Our resulting vector was of the same length as it only averaged over the 300 positions. This is significantly lower than the Tf-idf vector.
+Because the Google model takes always just one word as input and returns its vector of fixed length 300, we had to put the word vectors together into one song-representation vector. We chose a basic approach where we averaged all the word vectors into one final song vector. The song vector had on position $i$ the average over the values of word vectors on their position $i$. This approach yielded a vector of length 300 which is significantly lower than the Tf-idf vector.\\
 
-\subsection{SOM experiments}
+\subsection{SOM experiments}\label{ssec:som_experiments}
 
 \subsubsection{Input}
 We tried the W2V vectors from \ref{ssec:w2v_experiments} as input for our self organizing map, mainly because of their length and also because we were hoping, that the SOM could improve the results of the W2V method. We also tried to train the SOM on the output vectors of our PCA\_Tf-idf method. We did not try the raw Tf-idf vectors as they are long and it would prolong training significantly. Also, it makes sense to use PCA\_Tf-idf because the it yielded better results than raw Tf-idf.
@@ -61,38 +101,38 @@ We tried the W2V vectors from \ref{ssec:w2v_experiments} as input for our self o
 We used a python library called \texttt{minisom} \cite{Vettigli2019} to create our self organizing maps. We build a map with a grid size 5 times our dataset size (16594) and the number of iterations was also 5 times our dataset size. We saved a model after each multiple of 16594 iterations and interestingly, the representations did not change after 33 187 iterations (meaning 2*16594). It was also necessary to normalize our input vectors and set learning rate to 0.2. Otherwise the songs formed 3 to 5 large clusters on the grid placing thousands of songs on the same coordinate. 
 
 \subsubsection{Output}
-The output representation for each song was a vector of length two. The whole dataset then could be displayed on a 2D map. 
+The output representation for each song was a vector of length two. The whole dataset then could be displayed on a 2D map which we also did and it can be seen in Figure \ref{fig:som_map}. 
 
-\section{Simple audio method experiments}
+\section{Simple audio method experiments}\label{sec:simple_audio_experiments}
 
 \subsection{Audio preparation}\label{ssec:audio_prep}
 
-In order to encode audios of songs, we first needed to acquire some form of the music to become our standard. To make our audio information suitable for machine learning, we decided to extract audios of the same duration so our vectors (spectrograms, mel-spectrograms and mfccs are also of the same length). Since all songs have different lengths and also, one complete 3.5 minute long song results in a spectrogram of size 5214x2206 which when flattened is a vector of length 11502084. Therefore we decided to extract 15 second excerpts from each song to create spectrograms, mel-spectrograms and MFCCs from those. We took 5 seconds between the 15th and 20th second, 5 seconds starting in the middle of the song and 5 second starting 15 seconds before the end. We did not start at the beginning and the end because in some songs, there is silence or applause or some talking before the actual song starts. \\
+In order to encode audios of songs, we first needed to define some kind of standard audio-form. To make the audio information suitable for machine learning, we decided to extract chunks of the same duration from all songs so our vectors (spectrograms, mel-spectrograms and mfccs are also of the same length). Since all songs have different lengths and also, one complete 3.5 minute long song results in a spectrogram of size 5,214x2,206 which when flattened is a vector of length 11,502,084 we decided to extract 15 second excerpts from each song to create spectrograms, mel-spectrograms and MFCCs from those. We took 5 seconds between the 15th and 20th second, 5 seconds starting in the middle of the song and 5 second starting 15 seconds before the end. We did not start at the beginning and end at the end because in some songs, there is silence or applause or some talking before the actual song starts or after it ends. \\
 
 It was also necessary to decide on some parameters for spectrograms, mel-spectrograms and MFCCs. As stated previously, our neural networks were inspired by \cite{inproceedings_RNNs} where they also performed parameter optimisation. We decided to use their parameters as input for all our methods. It is possible that some parameters values suite some methods better than others but because of the amount of methods we tested we decided it would be too time consuming to optimise them for each method. We also think, that it is a good idea to have all methods work with more or less the same input as their comparison is less ambiguous. \\
-The resulting choices were following. We set window width $w$ to 0.2 and window overlap $w_o$ to 0.5$w$ = 0.1. For mel-spectrograms it is also necessary to choose Mel frequency bands which was set to 320 as in our inspiration paper findings\todo{zbytecne to opisujes (in our inspiration paper), proste sem zopakuj referenci }, the performance of neural networks did not increase for values higher than 320. For MFCC coefficients we decided to set the number of MFCC coefficients to 320 which is the same as the number of Mel frequency bands.
+The resulting choices were following. We set window width $w$ to 0.2 and window overlap $w_o$ to 0.5$w$ = 0.1. For mel-spectrograms it is also necessary to choose Mel frequency bands which was set to 320 as in \cite{inproceedings_RNNs} findings, the performance of neural networks did not increase for values higher than 320. For MFCC coefficients we decided to set the number of MFCC coefficients to 320 which is the same as the number of Mel frequency bands.
 
-We used Python's \texttt{librosa} library \cite{brian_mcfee_2019_2564164} to cut our\todo{snaz se pouziti "our" co nejvic zredukovat - zrovna tady potreba neni} songs and to generate our spectrograms, mel spectrograms and MFCCS using functions \texttt{librosa.core.stft} for spectrograms \texttt{librosa.feature.mel\_spectrogram} for mel-spectrograms and \texttt{librosa.feature.mfcc} for MFC coeficients. The audio data for training was stored in .wav files.
+We used Python's \texttt{librosa} library \cite{brian_mcfee_2019_2564164} to cut songs and to generate our spectrograms, mel spectrograms and MFCCS using functions \texttt{librosa.core.stft} for spectrograms \texttt{librosa.feature.mel\_spectrogram} for mel-spectrograms and \texttt{librosa.feature.mfcc} for MFC coeficients. The audio data for training was stored in .wav files.
 
-\subsection{Raw Mel-spectrograms}\label{ssec:raw_mels}
+\subsection{Raw Mel-spectrograms}\label{ssec:raw_mels_experiments}
 The input for mel spectrograms was a 15 second long audio described in \ref{ssec:audio_prep}. Extracting spectrograms does not require any training. It a is mathematical procedure explained in \ref{ssec:mel_spectrograms_intro}. \\
 The mel-spectrograms we got after transforming a 15 second long audio with 320 Mel frequencies bands were matrices of size 408x320 which when flattened turned into vectors of size 130560. This turned out to be too long to implement in our application, however, we still tested this method and got the following results. \\
 
-\subsection{Raw MFCCs}
+\subsection{Raw MFCCs}\label{ssec:raw_mfccs_experiments}
 Our 15 second audios were fed as input into the texttt{librosa.feature.mfcc()} function with parameters mentioned in \ref{ssec:audio_prep}. Training was not necessary since acquiring mel-frequency cepstral coefficient is a matter of Fourier Transformations. The resulting matrix had the shape of 646x128. When flattened we get a vector of length 82866. This has proven to be too long for practical use in our application, however we still have the evaluation results when defining song similarity as the cosine distance between flattened MFCC matrices.
 
-\subsection{PCA on spectrograms}
+\subsection{PCA on spectrograms}\label{ssec:PCA_spec_experiments}
 
 \subsubsection{Input}
 We used spectrograms as described in Section \ref{ssec:audio_prep} as input for our PCA. Because the output of the \texttt{librosa.core.stft()} method is a complex matrix, we computed the absolute value of each matrix entry. Afterwards, we flattened the matrix into a single vector and normalized it. Normalization was very important, without it, the resulting rankings were almost random.
 
 \subsubsection{Training}
 Training proved to be a little bit challenging with input vectors of length 900048. As the whole (16594x900048) matrix did not fit into the PCA at once. So instead of using \texttt{sklearn.decomposition.PCA} we turned to a PCA with the possibility to be trained in batches. This kind of PCA is also provided by \texttt{skearn} in the \texttt{sklearn.decomposition.incrementalPCA} module. \\ Our batch size was 1106. Again, when we tried to increase it, we got a memory error. This was a little inconvenient as for the PCA the maximum number of components is $min(n\_samples, n\_features)$. In our case, $n\_samples$ was only 1106 components which explained about 57\% of the dataset's variance.
-\todo[inline]{Tady jsem moc nepochopil proc zrovna 1106 - asi bude lepe to vysvetlit online}
+
 \subsubsection{Output}
 Our output were vectors of length 1106 which we acquired when taking the trained incremental PCA model and calling \texttt{tranform()} with the spectrogram as a parameter.
 
-\subsection{PCA with Mel-spectrograms}
+\subsection{PCA with Mel-spectrograms}\label{ssec:pca_mel_experiments}
 \subsubsection{Input}
 The input for our Mel-PCA were mel-spectrograms from \ref{ssec:audio_prep} which were flattened and normalized using a \texttt{MinMaxScaler} from the \texttt{sklearn} Python package.
 
@@ -103,10 +143,9 @@ We were quite pleased by the results as it is the best method that we came up wi
 \subsubsection{Output}
 Our output for the bigger model was a vector of length 5715, for the smaller model, it was a vector of length 320.
 
+\section{Deep audio experiments}\label{sec:deep_audio_experiments}
 
-\section{Deep audio experiments}
-
-\subsubsection{Architecture}
+\subsection{Architecture}\label{ssec:nn_architectures}
 Before analysing each or the audio method using deep neural networks independently we will describe the two architectures we used. \\
 As stated multiple times before, we decided to build our network based on the \cite{inproceedings_RNNs} paper. We chose our audio extraction coefficient based on their findings and we also designed our architecture in a way they did with some slight adjustments and extensions. \\
 The first most notable thing is, that their network was designed to classify sounds, not encode songs. One might think that this would make their RNN unsuitable for our task, and it did as a whole. However their network consisted of two parts. The first part was an autoencoder and the second part a multi-layer perceptron. The autoencoder was trained in an unsupervised manner and the outputs were then fed into the MLP which did the classification. \\
@@ -124,7 +163,7 @@ We created two architectures. One with two GRU layers at the beginning as the en
 \begin{minipage}{.45\textwidth}
   \centering
   \includegraphics[width=1\linewidth]{./img/lstm_architecture.png}
-  \captionof{The general architecture of our LSTM neural networks}
+  \caption{The general architecture of our LSTM neural networks}
   \label{fig:lstm_architecture}
 \end{minipage}
 \end{figure}\label{fig:nn_architectures}
@@ -133,43 +172,38 @@ The main motivation behind using LSTMs as well as GRU layers in this thesis was 
 
 We used the \textit{mean squared error} as our loss function which is the standard for autoencoder networks. Our optimiser was \textit{adam} the same as in the \cite{inproceedings_RNNs} paper. We had to decrease the learning rate from 0.001 to 0.0001. Before we did that, our resulting predicted vectors often consisted of just \textit{NaN}s.
 
-\subsubsection{Inputs and outputs}
+\subsection{Inputs and outputs}
 Both the GRU and the LSTM network had three kinds of inputs --- the spectrograms, mel-spectrograms and the MFCCs. They were all passed in the form of 2D matrices containing $(n\_features, n\_timestamps)$. GRU as well as LSTM networks take 2D matrices and not just 1D vectors as input. Before training, the inputs were normalized using the \texttt{MinMaxScaler} with values between 0 and 1. \\
 One important thing to note here is that these kind of networks that process sequential data in the form of 2D matrices reduce the dimensionality of only the $ n\_features $ and not the $ n\_timestamps $. Our 15 second audios yielded 408 time stamps and 2206 features for spectrograms and 408 time stamps and 320 features for mel-spectrograms. With MFCCs the number of time stamps was 646 and the number of features 128. Therefore we did not attempt a dimensionality reduction as big as with PCA which does not care if a feature is a time stamp or a sample.
 
-\subsection{GRU network with spectrogram input}
+\subsection{GRU network with spectrogram input}\label{ssec:GRU_spec_experiments}
 
 \subsubsection{Training}
 
 We trained two GRU spectrogram networks with variable output vector lengths. We decided to base our vector length on the PCA's explained variance ratio. For spectrograms however, we only found out that 1106 explains 56\%of variance. Therefore, we took the information from the mel-spectrogram PCA where 5715 explains 90\% of variance and did a simple calculation $$ l(mel\_spec_{transformed})/l(mel\_spec) = l(spec_{transformed})/l(spec) $$. To keep the proportional reduction same as for mel-spectrograms and the output length of 5715 where $l(x)$ is the length of either the spectrogram or mel-spectrogram flattened. This would mean an output vector length of almost 40000. We decided that it would be too much for any practical use in our web application and reduced it to 20400 which at that point we thought could be potentially used. The shorter vectors used as encodings of our spectrograms were of length 5712. This inspired by the Mel-spectrogram PCA as we thought that the neural network could mimic the Mel-frequency reduction as well as additional reduction. \\
 In our base paper, they trained their autoencoders for 50 epochs using batch sizes of 64. We found this to be insufficient especially with our learning rate reduction. For GRU networks with spectrograms we set the number of epochs to 100 and the batch size to 295 (for higher batch values we got memory errors). 
 
-\subsection{LSTM network with spectrogram input}
+\subsection{LSTM network with spectrogram input}\label{ssec:LSTM_spec_experiments}
 
 \subsubsection{Training}
 We chose the same training strategy for LSTMs with spectrogram input as we did for the GRU\_spec networks. It makes the comparison of both methods more fair. We created two versions of our LSTM models, one LSMT\_spec\_20400 and the shorter version LSTM\_spec\_5712. The lengths are also the same as with GRU\_specs and the motivation behind them is identical.
 
-\subsection{GRU and LSTM networks with Mel-spectrogram input}
+\subsection{GRU and LSTM networks with Mel-spectrogram input}\label{ssec:GRU_LSTM_mel_experiments}
 
 \subsubsection{Training}
 The GRU\_mel and LSTM\_mel networks were both trained under the same conditions. We trained them on our mel-spectrograms for 150 epochs with a batch size of 256. With a higher batch size we got a memory error. The output length of the encoded song vector was based on variance ratio of the PCA\_mel (same as for networks with neural networsk with spectrogram input). We did not attempt any further reductions here partly because as stated before, only the features can be reduced by GRU and LSTM layers meaning, that we have to have vectors of length of at least 408 and to scale the features down to one or two might lead to same results as with our SOM methods.
 
-\subsection{GRU and LSTM networks with MFCC input}
+\subsection{GRU and LSTM networks with MFCC input}\label{ssec:GRU_LSTM_MFCC_experiments}
 
 \subsubsection{Training}
 At first we did not plan on using MFCCs as input into neural networks. However because it turned out the the raw MFCCs are too long to be used in our application directly we decided it would be a shame to just leave them out and tried to reduce their dimension again with both our GRU and LSTM network architectures. \\ 
 We trained both architectures with 150 epochs and a batch size of 256 which is the same as the neural networks having mel-spectrograms as input. 
 
-
-
-
-
-
-\section{Similarity metrics}
+\section{Similarity metrics}\label{sec:similarity_metrics}
 As the reader might have notices, we presented several possible methods which encode a song into a vector. But we still need to define the similarity between these vectors. There are many ways of asserting how similar two vectors are however we do not consider studying these to be main focus of this thesis. After the initial exploration of this topic, we decided to use the \textbf{cosine similarity metrics} for all our representation methods. \\
 Although throughout the application the name for the metric is distance, it in fact is a similarity measure meaning the greater value the more similar two songs are. We use the \texttt{sklearn.metrics.pairwise.cosine\_similarity} function for all of our distance calculations.
 
-\section{Evaluation}
+\section{Evaluation}\label{sec:evaluation}
 
 \subsection{Desired recommender-system features}
 We already touched this in the introduction but it is useful to revise what we want from a good recommendation system and what its most important features are. Let's skip the software part for now as it is further discussed in Chapter \ref{chap:web_app} and focus purely on what it recommends. Probably the most crucial property a recommendation system should have is that it should include the items the user actually likes between the first 10 to maybe 50 recommendations. Because it does not really matter if an item the user would like ends up on the 500th or 5000th position. People rarely go that deep. \\
@@ -178,7 +212,6 @@ Even though the whole idea of this thesis is to approach recommendation more loo
 
 \subsection{Evaluation measures}\label{ssec:evaluation_measures}
 To test the wanted features described in the section above we performed evaluation as follows. \\
-For each method, we created two matrices while training, the \textit{Representation matrix} denoted as  $M_r$ and the \textit{Distance matrix } denoted as $M_d$. Each $M_r$ has the shape of ($16594$ x $l(v_m) $) where $l(v_m)$ is the length of the song vector representation of method m. 
 Our dataset contains 11123 playlists that were used to evaluate our methods. We chose to evaluate our methods only on playlists of length at least four. For each method, we did a 5-cross-validation where in a validation epoch, every playlists $p_i$ was divided into two parts a training part $p_{i_{train}}$ and a testing part $p_{i_{test}}$ with an approximately 80:20 ratio. A higher priority was set on the fact that the test part always had to contain at least one entry (meaning that for playlists of length 2, the ratio would be 50:50). \\
 Afterwards for each song $ s_k $ from our song dataset $S$, the similarity of the whole $p_{i_{train}}$ to $s_k$ which we denote as $ sim(p_i, s_k) $ was calculated as $$ sim(p_i, s_k) =\sum_{s_j\in{p_i{_{train}}}} cos\_sim(s_i, s_j) $$ where $ i \neq j$ and $cos\_sim$ is the cosine similarity. These similarities were then sorted and it was determined at what position the songs from $p_{i_{test}} $ that actually belong to the playlist came. \\
 These positions were then used to calculate multiple evaluation measures used to assess how well does each algorithm predict the missing part of a users playlist. For this we chose the following for methods:
@@ -195,11 +228,10 @@ These positions were then used to calculate multiple evaluation measures used to
     is the ideal discounted cumulative gain at r
     where $r$ is in our case the number of songs that had to be predicted, the $rel_i$, meaning relevance, is the same for all songs as all songs in one playlists have the same relevance and $|REL|$ is the list of relevant items (in our case the songs from $p_{test}$).
     \item Average rank of a song from the $p_{i_{test}}$ set $ \boldsymbol{ (= \overline{rank})} $ which we included to have also an indication of the overall behaviour, not only the first 100 ranks.
-    \item A graph plotting the distribution of rankings of songs from the test part of each playlists which we called the \textit{RDG} (=\textit{rank distribution graph}). We summed the number of songs from $p_{test}$ to which each individual rank from 1 to 16594 and divided it by the number of all songs that were in a testing part of some playlist. So for example if we had two playlists both with two songs from $p_{test}$ and our method assigned ranks 30 and 2900 to the $p_{test}$ songs from the first playlist and 2900 and 4872 to those from the second playlists, our graph would plot the values 0.25 for rank 30, 0.5 for rank 2900 and 0.25 for rank 4872 and 0 for the rest of the ranks. We did this for all playlists together but we also plotted the distributions for chosen playlist lengths separately to see if our predictions improve for longer playlists as we were hoping for. The x-scale of the \textit{RDG} was scaled logarithmicaly as we are much more interested in what is going on on the first 100 positions than what is goint on in the middle or towards the end. \\
+    \item A graph plotting the distribution of rankings of songs from the test part of each playlists which we called the \textit{RDG} (=\textit{rank distribution graph}). We summed the number of songs from $p_{test}$ to which each individual rank from 1 to 16594 and divided it by the number of all songs that were in a testing part of some playlist. So for example if we had two playlists both with two songs from $p_{test}$ and our method assigned ranks 30 and 2900 to the $p_{test}$ songs from the first playlist and 2900 and 4872 to those from the second playlists, our graph would plot the values 0.25 for rank 30, 0.5 for rank 2900 and 0.25 for rank 4872 and 0 for the rest of the ranks. We did this for all playlists together but we also plotted the distributions for chosen playlist lengths separately to see if our predictions improve for longer playlists as we were hoping for. The x-scale of the \textit{RDG} was log-scaled as we are much more interested in what is going on on the first 100 positions than what is goint on in the middle or towards the end. \\
 \end{itemize}
 After running this evaluation, we noticed that for most of our similarity methods, the positions for songs from $p_{i_{test}} $ that belonged to a short playlist were higher up, than those from long playlists especially for the first three ranks. Therefore, we changed our recommendation method a little bit. We set a threshold for each similarity metrics, and if the similarity between two songs was smaller than this threshold, we set the similarity to 0. This means, that our new similarity function $cos\_sim_t(s_i,s_j)$ is defined as follows:
-\todo[inline]{Tady neni moc dobre poznat, proc to delas - zkus zapracovat na lepsim vysvetleni. Navic bych to nenazval vyhodnocovani. Ty pouzivas doporucovani, ktere je CB, zalozene na cosinove podobnosti a nejak agreguje vysledky z playlistu (to jsem tu ostatne zatim nikde nevidel, je treba to popsat!!). Cili zavedenim thresholdu vpodstate menis tu doporucovaci metodu, ne evaluaci, ta zustava stejna (pripomen mi tohle na osobni schuzce, jen v poznamkach se to blbe vysvetluje...)}
- 
+
 \[   
 cos\_sim_t(s_i,s_j) = 
      \begin{cases}
@@ -207,7 +239,7 @@ cos\_sim_t(s_i,s_j) =
        \text{$ 0 $} &\quad\text{if $ cos\_sim(s_i,s_j)  < threshold$}\\
      \end{cases}
 \]
- The threshold was chosen as $ 51 * |S| $ where $ S $ is our dataset which is 846294.\todo[inline]{Tomu nerozumim - velikost datasetu pokud vim neni skoro milion. Potom taky cos_sim je mezi 0 a 1,takze definice nedava smysl. Podivej se na to jeste jednou} The most similar song is always the song itself, so it leaves us with approximately 50 most similar songs to each song. \\
+ The threshold was chosen as \[ 51 * |S| \] where $ S $ is our dataset which is 846294. The most similar song is always the song itself, so it leaves us with approximately 50 most similar songs to each song. \\
 The results described in the section here are all from the evaluation with threshold. If the evaluation without threshold was better for a method, it is mentioned in the method's section. The reason to use the threshold-evaluation is also the fact, that we use the thresholds to calculate similarity in our application too. Not only because of the better results but also because of the fact, that it dramatically reduces the number of similarities that have to be stored in our database.\\
 To give an idea about how the results changed with applying the threshold, lets take a look at the plots in Figure \ref{fig:threshold_method_comparison}. We plotted two lines for each method. The dashed line represents the recall values after evaluation without threshold, the continuous line represents the recall values evaluated with threshold. \\
 The graph on the left shows how the \textit{recall} values changed for all our 11123 playlists. We can notice, that all methods improved except of PCA\_spec\_320, which had worse results for \textit{R@100}. The most crucial remark here however is the behaviour of short and long playlists. The results for short playlists did not improve as much and sometimes even worsened as we can see in the graph in the middle, whereas the results for long playlists improved quite a lot which is illustrated by the graph on the right. This is our desired behaviour. From the \textit{RDG} graphs later on in the specific method sections, we will see, that for short playlists, the first one to four ranks are very numerous. For the following ranks however, there is a sharp drop, which does not happen with longer playlists, definitely not as significantly. \\
@@ -235,14 +267,9 @@ The graph on the left shows how the \textit{recall} values changed for all our 1
 
 We calculated each of the four measures (\textit{R@10, R@50, R@100} and \textit{nGDC} for each playlist and then averaged over the whole playlist dataset. Every method section contains a table with the four measure averages and a graph. Both are accompanied with a short summary of the most obvious observations.
 
-To make things more easy for the rest of the thesis we introduce a nomenclature for our experimental methods. There are 3 different parts each of our method has. The name of the main algorithm, the name of the input and the length of the output vector. Every method can be uniquely identified by a combination of these three parts. Where there is only one or two of these necessary, we omit those which are surplus.\\
-So for example a PCA method with spectrogram input and the output vector length of 320 is denoted as PCA\_spec\_320. If we take a look at the notation of the Tf-idf method, it will be only Tf-idf as there are no variations to it. However the PCA with Tf-idf input will be PCA\_Tf-idf as there is also a PCA method with mel-spectrograms as input. We separate the name parts with '\_' 
+\section{Text method results}\label{sec:text_results}
 
-\section{Text method results}
-
-\subsection{TF-idf results}
-
-\subsubsection{Tf-idf results}
+\subsection{TF-idf results}\label{ssec:tf_idf_results}
 
 The results of the TF-idf method places well above average between our methods. This was a bit of a surprise as we did not expect this "simple" method to perform well compared to others. \\
 
@@ -282,12 +309,11 @@ Another thing to notice in \ref{fig:tf_idf_distribution} is that there is a gene
 \end{minipage}
 \end{figure}
 
-\subsection{PCA\_Tf-idf results}
+\subsection{PCA\_Tf-idf results}\label{ssec:pca_tf-idf_results}
 
-\subsubsection{Results}
 The results of the PCA-reduced Tf-idf vector turned out to be better then full Tf-idf vectors. As we can see in \ref{table:1} the number are better for the \textit{R10} and \texit{R50}, with the \textit{R@100} the values are almost the same. Figure \ref{fig:method_comparison} illustrates the fact, that after the application of our threshold, this method became the best one for long playlists jumping over the PCA\_mel\_5715. 
 
-\subsection{W2V results}
+\subsection{W2V results}\label{ssec:w2v_results}
 
 \subsubsection{Results}
 The small size of the vectors being produced by the W2V method are a significant advantage of this method. However the results it yielded make it below average even compared to our other methods. In ought to be mentioned that even compared to methods producing vectors of similar length such as PCA\_mel\_320.
@@ -316,7 +342,7 @@ The table shows lower numbers than for the Tf-idf method. 3.5\% of songs from th
 	\label{fig:w2v_distribution}
 \end{figure}
 
-\subsection{SOM results}
+\subsection{SOM results}\label{ssec:som_results}
 
 \begin{figure}[h]
     \centering
@@ -362,8 +388,8 @@ The distribution graph of the SOM\_W2V method clearly shows, that the distributi
 \end{minipage}
 \end{figure}
 
-\section{Simple audio representation results}
-\subsuection{Mel-spectrogram results}
+\section{Simple audio representation results}\label{sec:simple_audio_resutls}
+\subsection{Mel-spectrogram results}\label{ssec:mel_results}
 
 As can be seen in \ref{table:mel_spec_methods} 3.7\% of songs ended up between top ten predictions, 4.3\% in top 50 and 4.7\% in the top 100. These results are actually better than any other method using mel-spectrograms as input was before applying the threshold, except of the PCA\_mel
 
@@ -402,9 +428,7 @@ The patterns observed in \ref{fig:mel_graph} which shows the distribution of ran
 	\label{fig:mel_graph}
 \end{figure}
 
-\subsectio{Raw MFCCs results}
-
-\subsubsection{Results}
+\subsection{Raw MFCCs results}\label{ssec:raw_mfccs_results}
 
 The results of MFCCs are quite poor even compared to our other methods. Only 0.4\% of songs missing in our playlists rank betwen the top 10, 0.9\% in the top 50 and 1.4\% in the top 100 as we can see in Table \ref{table:mfcc_methods}. It was better than the LSTM\_MFCC method before we applied the threshold to our evaluation.
 \begin{table}[h]
@@ -436,10 +460,7 @@ The results of MFCCs are quite poor even compared to our other methods. Only 0.4
 	\label{fig:mfcc_graph}
 \end{figure}
 
-
-\subsection{PCA on spectrograms}
-
-\subsubsection{Results}
+\subsection{PCA on spectrograms}\label{ssec:pca_spec_results}
 
 \begin{table}[h]
 \centering
@@ -487,9 +508,8 @@ The dimensionality reduction in this method was the biggest of all or our method
 When seeing this, we decided to go for a even more radical reduction to vectors of length 320. This was inspired by the number of mel-filters that were applied to create the mel-spectrogram. We called our bigger model PCA\_spec\_1106 and our smaller model PCA\_spec\_320.  The results of the smaller model were only slightly worse than those of the big one with another big dimension reduction. One interesting thing is, that the PCA\_spec\_320 method is the only one whose results worsened with the appliacation of the threshold. It can be observed in Figure \ref{fig:method_comparison} where the PCA\_mel\_320 is depicted in yellow. The impairment is only slight for all playlists but when looking at the graph on the right with results for long playlists, the deterioration is quite significant. \\
 \todo[inline]{Neni nahodou dimenze W2V 300? Pak nechapu proc zrovna 320?}
 
-\subsection{PCA on Mel-spectrograms}
+\subsection{PCA on Mel-spectrograms}\label{ssec:pca_mel_results}
 
-\subsubsection{Results}
 To our disappointment, the more radical dimension reduction did not improve the performance of the PCA\_mel method. It actually worsened the results significantly and the PCA\_mel\_320 was our worse method. But only until we applied the threshold. For this method, the threshold worked like magic. Its results improved over ten times. It is interesting because it was the PCA\_spec\_320 for which the results worsened after applying the threshold and one might think, that PCA methods on audio will behave similarly.
 \todo[inline]{No, spojeni "like magic" bych se radeji vyhnul... Vzhledem k tomu, co vsechno bylo povazovano za "magic" predtim nez to veda vysvetlila bychom mohli byt obvineni z toho, ze jsme se nepidili dostatecne po duvodech toho zlepseni:-)) Jinak celkova rada: vedec je od toho, aby vysledky zaznamenal a pouzil - to ze mu udelaly radost, nebo ho zklamaly je irelevantni (ne ze by to tak nebylo, ale do clanku se to tak nepise:-)). No a potom tu chybi tabulka jako u predchozich kapitol... }
 
@@ -510,12 +530,10 @@ Figures \ref{fig:pca_mel_5715_distribution} and \ref{fig:pca_mel_320_distributio
 \end{minipage}
 \end{figure}\label{fig:pca_mel_comparison_graps}
 
+\section{Deep audio representation results}\label{sec:deep_audio_results}
 
-\section{Deep audio representation results}
+\subsection{GRU network with spectrogram input}\label{ssec:gru_spec_results}
 
-\subsection{GRU network with spectrogram input}
-
-\subsubsection{Results}
 As can be observed in Figure \ref{fig:all_model_training} the loss is basically constant for both GRU networks with spectrogram input (the GRU\_spec\_20400 is hidden behind the orange line of GRU\_spec\_5712 as their progress or rather the lack of it is the same). This means, that the network did not really improve for some reason. Therefore it is not suprising that the GRU\_spec\_5712 is not between our best ones. And it is quite surprising, that the GRU\_spec\_20400 even though it appeared to be quite bad before the application of the threshold, it greatly improved and became the best method with spectrogram input as can be seen in Table \ref{table:spec_methods}. The table also shows that 4.3\% of songs was ranked in the top 10, 5.2\% in the top 50 and 5.7\% in the top 100 for the longer GRU spectrogram model. For the short GRU spectrogram model, the results are significantly worse with 0.2\% for the top ten songs 0.6\% ranked in the top 50 and a little over 1\% ranked in the top 100. \\
 The distributions depicted in Figures \ref{fig:gru_spec_20400_distribution} and \ref{fig:gru_spec_5712_distribution} of both GRU\_specs is are dissimilar too. The overall trend for the short playlist drop and stability of long playlists is visible in \ref{fig:gru_spec_20400_distribution} but not in the \ref{fig:gru_spec_5712_distribution} where there is a trace of this trend but the results are overall bad so it fades. 
 
@@ -535,9 +553,8 @@ The distributions depicted in Figures \ref{fig:gru_spec_20400_distribution} and 
 \end{minipage}
 \end{figure}\label{fig:gru_spec_distributions}
 
-\subsection{LSTM network with spectrogram input}
+\subsection{LSTM network with spectrogram input}\label{ssec:LSTM_spec_results}
 
-\subsubsection{Results}
 Unlike the GRU model training which showed almost no improvement even after 100 epochs of training, our LSTM\_specs as one can observe in Figure \ref{fig:all_model_training} where the LSTM\_spec\_20400 is rendered in green and the LSTM\_spec\_5712 in red went through at least some kind of progress. The decrease of loss slowed down significantly towards the end of the 100 epochs. \\
 The higher training improvement correlated with better results for the LSTM\_spec methods. But only until we applied the threshold. It raised performance of all methods but the increase for GRU\_spec\_20400 was so big that it vaulted over both LSTM methods. In Table \ref{table:spec_methods} are the results of both LSTM\_spec models. \\
 A thing worth noting is that with the bigger dimension reduction, the results worsened even before applying the threshold. And the LSTM\_spec\_20400 method stayed better even after the threshold evaluation as we can see in Table \ref{table:spec_methods} and in Figures \ref{fig:lstm_spec_20400_distribution} and \ref{fig:lstm_spec_5712_distribution} which visualize the difference.
@@ -558,9 +575,8 @@ A thing worth noting is that with the bigger dimension reduction, the results wo
 \end{minipage}
 \end{figure}\label{fig:lstm_spec_distributions}
 
-\subsection{GRU and LSTM networks with Mel-spectrogram input}
+\subsection{GRU and LSTM networks with Mel-spectrogram input}\label{ssec:GRU_LSTM_mel_results}
 
-\subsubsection{Results}
 Mel-spectrograms seem to be the best kind of input we have and the GRU\_mel network confirms it as it has the best results within the neural network method group. The GRU\_mel network performed better than the one with LSTM layers and also showed the smallest loss in training. The difference in ranking accuracy is quite big. Figures \ref{fig:gru_mel_distribution} and \ref{fig:lstm_mel_distribution} display typical tendencies all most of our methods have, with the sharp drop for short playlists and more stability for longer playlists. This is especially apparent with the GRU\_mel method. For the LSTM\_mel, longer playlists also drop quite early. \\
 Table \ref{table:mel_spec_methods} puts recalls and nDGC of our "mel" neural networks into perspective with other "mel" methods.
 As we can see, the GRU\_mel network placed 4.6\% of songs into the top 10, 5.7\% into the top 50 and 6.3\% into the top 100. The LSTM\_mel network is worse as and is places as our worst "mel" method for \textit{R@10} with 3.2\% of songs in the top 10. For \textit{R@50} and \textit{R@100} it outperforms raw mel-spectrograms with 4.3\% of songs in the top 50 and 5\% of songs with assigned ranks in the top 100.
@@ -581,10 +597,7 @@ As we can see, the GRU\_mel network placed 4.6\% of songs into the top 10, 5.7\%
 \end{minipage}
 \end{figure}\label{fig:mel_nn_distributions}
 
-\subsection{GRU and LSTM networks with MFCC input}
-
-\subsubsection{Results}
-
+\subsection{GRU and LSTM networks with MFCC input}\label{ssec:GRU_LSTM_MFCC_results}
 The MFCC networks seem to have the biggest potential of improving if they were to be trained for a longer period of time as their plots in Figure \ref{fig:all_model_training} especially the GRU\_MFCC one does not stagnate as much as the other networks. They would however probably never decrease their loss to be as small as for the "mel" networks. \\
 Compared to the raw MFCCs the GRU\_MFCC and LSTM\_MFCC meant an improvement as the values in \ref{table:mfcc_methods} suggest. The Figure \ref{fig:mfcc_nn_distributions} containing both method's \textit{RDGs} confirms the superiority of the GRU\_MFCC method over the LSTM\_MFCC. The LSTM\_MFCC and especially the GRU\_MFCC method made a huge jump upwards with the threshold similarity. Without it, they seemed to have really bad results, but the threshold helped them to perform quite well.
 
@@ -603,8 +616,6 @@ Compared to the raw MFCCs the GRU\_MFCC and LSTM\_MFCC meant an improvement as t
   \label{fig:lstm_mfcc_distribution}
 \end{minipage}
 \end{figure}\label{fig:mfcc_nn_distributions}
-
-
 
 \section{Discussion}\label{sec:discussion}
 

@@ -17,17 +17,22 @@ The Echo Nest Taste Profile Subset provides us with 48,373,586 triplets of \text
 After removing songs we did not have lyrics for, we ended up with 16594 unique songs, and 45054 unique users. For each of the 16594 songs we also acquired a mono .wav file. \\
 
 \section{Final dataset statistics}
-Overall our final dataset had 160454 entries containing a user id, the artist, the song title and the lyrics. As our evaluation method is based on the users playlists  aimed to reveal the missing entries based on the implemented recommending techniques which will be described in more detail in Chapter \ref{chap:experiments} we studied the dataset and especially the playlist length in more detail.\\
+Overall our final dataset had 160454 entries containing a user id, the artist, the song title and the lyrics. We used this to create a number of different datasets suited for different tasks throughout the thesis. \\
+\begin{itemize}
+    \item The \textit{Song dataset} denoted as SD in this work. It contained the 16594 unique songs with their metadata, the users were omitted.
+    \item The \textit{User dataset} denoted as UD. It contained 11123 unique user id's. For each, there were at least 4 songs. This means, it is a dataset containing playlists that have at least 4 entries. 
+\end{itemize}
+ As our evaluation method is aimed to reveal the missing entries based on the implemented recommendation techniques which will be described in more detail in Chapter \ref{chap:experiments} we studied the dataset and especially the playlist's lengths in more detail.\\
 Here are some important remarks:
 \begin{itemize}
     \item Each user only has one playlist. This means there is a one to one mapping between users and playlists and the terms are used interchangeably.
     \item We do not know which songs the user has played most recently.
     \item Users with only one song are useless for our evaluation.
-    \item It should be easier to complete the dataset for users with longer datasets.
+    \item It should be easier to complete the missing songs for users with longer playlists.
 \end{itemize} 
 When analyzing our dataset, it turned out, that out of 45054 playlists, there are 22257 with only one song, which leaves us with 22797 we can use. Meaning, that a little over half of the playlists is useful for our evaluation.
 
-The distribution of useful playlist lengths is shown in more detail in Figure \ref{fig:playlist_length_distribution}. We can see that most of the playlists are short, almost a third of them only contains two songs. The average number of songs per playlists (including those containing only one song) is 3.56. 
+The distribution of the lengths for useful playlist is shown in more detail in Figure \ref{fig:playlist_length_distribution}. We can see that most of the playlists are short, almost a third of them only contains two songs. The average number of songs per playlists (including those containing only one song) is 3.56. 
 \begin{figure}[ht]
     \centering
 	\includegraphics[width=1\linewidth]{./img/playlist_length_numbers.png}
