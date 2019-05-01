@@ -41,7 +41,7 @@ Each of the triangular filters has a response going from 1 to 0. They respond 1 
 	\label{fig:ilustrative_melspecrogram}
 \end{figure}
 
-\subsection{Mel Frequency Ceptral Coefficients}
+\subsection{Mel Frequency Ceptral Coefficients}\label{ssec:mfcc_intro}
 Mel-Frequency Ceptral Coefficients (MFCC) are another step further in extracting audio features. They are obtained by applying \textit{Discrete cosine transformation} to mel-spectrograms. The DCT yield an even more compressed representation of them. For the song 'Someone Like You' by 'Adele' which we used as an example for spectrograms as well as mel-spectrograms, it created a matrix of shape (128, 7796) which looks as Figure \ref{fig:ilustrative_mfccs} illustrates.\\
 
 A nice introcution to music signal processing with respect to deep machine learning, where spectrograms, mel-spectrograms and MFCCs are explained in more detail can be found here \cite{Schluter2017} where we also drew a lot of our information from.
