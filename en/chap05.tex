@@ -348,7 +348,7 @@ Another thing to notice in \ref{fig:tf_idf_distribution} is that there is a gene
 
 \subsection{PCA\_Tf-idf results}\label{ssec:pca_tf-idf_results}
 
-The results of the PCA-reduced Tf-idf vector turned out to be better then full Tf-idf vectors. As we can see in \ref{table:1} the numbers are better for the \textit{R10} and \textit{R50}. The \textit{R@100} the values are almost the same. Figure \ref{fig:threshold_method_comparison} illustrates the fact, that after the application of the threshold, this method became the best one for long playlists and also the best method overall overtaking the PCA\_mel\_5715 which was the best method in the first evaluation without threshold as can be seen in Figure \ref{fig:no_threshol_method_comparison}. 
+The results of the PCA-reduced Tf-idf vector turned out to be better then full Tf-idf vectors. As we can see in \ref{table:1} the numbers are better for the \textit{R10} and \textit{R50}. The \textit{R@100} the values are almost the same. Figure \ref{fig:threshold_method_comparison} illustrates the fact, that after the application of the threshold, this method became the best one for long playlists and also the best method overall overtaking the PCA\_mel\_5715 which was the best method in the first evaluation without threshold as can be seen in Figure \ref{fig:no_threshold_method_comparison}. 
 
 \subsection{W2V results}\label{ssec:w2v_results}
 
@@ -370,7 +370,7 @@ The small size of the vectors being produced by the W2V method are a significant
 \label{table:2}
 \end{table}
 
-Table \ref{table:2} shows lower numbers than for the Tf-idf method. 3.5\% of songs from the $ p_{test} $ set ranked in the top 10, 4.8\% in top 50 and 5.5\% in top 100. The average rank was 7804. When looking at the distribution graph, it is very clear that the gap here between the accuracy of predicted ranks for short and longer playlists is big and Figures \ref{fig:no_threshol_method_comparison} and \ref{fig:threshold_method_comparison} show us, that the threshold helped this method especially for ranking of songs from longer playlists, where it even outmatched the PCA\_mel\_320. 
+Table \ref{table:2} shows lower numbers than for the Tf-idf method. 3.5\% of songs from the $ p_{test} $ set ranked in the top 10, 4.8\% in top 50 and 5.5\% in top 100. The average rank was 7804. When looking at the distribution graph, it is very clear that the gap here between the accuracy of predicted ranks for short and longer playlists is big and Figures \ref{fig:no_threshold_method_comparison} and \ref{fig:threshold_method_comparison} show us, that the threshold helped this method especially for ranking of songs from longer playlists, where it even outmatched the PCA\_mel\_320. 
 
 \begin{figure}[h]
     \centering
@@ -541,7 +541,7 @@ The results of MFCCs are quite poor compared to our other methods. Only 0.4\% of
 \end{figure}
 
 The dimensionality reduction in this method was the biggest of all or our methods. Our song representation went from 900,048 to 1,106 respectively 320 dimensions. \\
-Even with only 57\% of explained variance for the PCA\_spec\_1106, this method's results were above average compared to other methods. So it seemed reasonable to go for an even more radical reduction to vectors of length 320. This was inspired by the number of mel-filters that were applied to create the mel-spectrogram. The results of the method yielding shorter vectors were only slightly worse than those of the one yielding longer vectors when evaluated without threshold. One interesting thing is, that the PCA\_spec\_320 method is the only one whose results worsened with the application of the threshold and the gap between in the performance of these two methods widened. It can be observed in Figure \ref{fig:no_threshol_method_comparison} where method ranking after evaluation without threshold is depicted and both methods are green, and Figure \ref{fig:threshold_method_comparison} where the PCA\_spec\_320 already in the orange area and the PCA\_spec\_1106 stays green. \\
+Even with only 57\% of explained variance for the PCA\_spec\_1106, this method's results were above average compared to other methods. So it seemed reasonable to go for an even more radical reduction to vectors of length 320. This was inspired by the number of mel-filters that were applied to create the mel-spectrogram. The results of the method yielding shorter vectors were only slightly worse than those of the one yielding longer vectors when evaluated without threshold. One interesting thing is, that the PCA\_spec\_320 method is the only one whose results worsened with the application of the threshold and the gap between in the performance of these two methods widened. It can be observed in Figure \ref{fig:no_threshold_method_comparison} where method ranking after evaluation without threshold is depicted and both methods are green, and Figure \ref{fig:threshold_method_comparison} where the PCA\_spec\_320 already in the orange area and the PCA\_spec\_1106 stays green. \\
 
 \subsection{PCA on Mel-spectrograms}\label{ssec:pca_mel_results}
 
@@ -713,7 +713,7 @@ We also expected that more advanced methods will outperform simpler methods. Thi
 This could be caused by the fact that we did not tune our neural networks. There is not much to improve about the PCA but a lot of parameter optimisation and also architecture re-creation can be done on all of the neural networks we implemented. \\
 
 \subsection{Relative results}\label{ssec:relative_comparison}
-We created two heat maps one is depicted in Figure \ref{fig:no_threshol_method_comparison} for results without threshold and one in Figure \ref{fig:threshold_method_comparison} for results with threshold. We ranked the methods on how well they performed in each evaluation measure and we took playlist lengths into account. \\
+We created two heat maps one is depicted in Figure \ref{fig:no_threshold_method_comparison} for results without threshold and one in Figure \ref{fig:threshold_method_comparison} for results with threshold. We ranked the methods on how well they performed in each evaluation measure and we took playlist lengths into account. \\
 We can see, that the PCA\_Tf-idf was the most successful method winning in 8 out of the 20 measures. It performed best on long playlists. The average rank, where its performance is in the red area is not that important for recommendation and we included it to have some understanding of what is going on on throughout the ranks, not only at the first 100 places. Second comes PCA\_mel\_5715, then Tf-idf with PCA\_spec\_1106 right behind it. Then we have the GRU\_mel method which is orange for short playlists, however otherwise in the green area and it is the best neural network method, lyrics or audio-based. \\
 Overall we can see, that the PCA methods were very successful compared to other methods. Except of the PCA\_spec\_320, they are all green and the only method that comes between them on the top places 4 is the Tf-idf. \\
 Within text-based methods, the PCA\_Tf-idf and Tf-idf show strong dominance, the W2V is below average and the SOM has the worst results of all methods. For audio-based methods, the winner is PCA\_mel\_5715. \\
@@ -722,7 +722,7 @@ Within text-based methods, the PCA\_Tf-idf and Tf-idf show strong dominance, the
     \centering
 	\includegraphics[width=1\linewidth]{./img/no_threshold_method_ranking.png}
 	\caption{The relative performance of each method based on how it performed for various evaluation measures when recommending without threshold. The method was assigned a rank from 1 to 16 (16 is the number of the methods in this figure) for each measure based on how it placed in that particular one. The more darker green the better was the placement, yellow are the average ones and red are the for the worst places. The evaluation measures are displayed on the x-axis. Methods with "\_L" appended contain results of long playlists (length 16-21), methods with "\_M" are the results for medium playlists (length 8-15) and methods with "\_S" are evaluation measures of short playlists (length 4-7). When there is nothing appended to the evaluation measure name, it is the value for all playlists.}
-	\label{fig:no_threshol_method_comparison}
+	\label{fig:no_threshold_method_comparison}
 \end{figure}
 \begin{figure}[H]
     \centering
