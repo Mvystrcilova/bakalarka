@@ -10,7 +10,7 @@ In this section, we will describe the proposed web application for novel song re
 
 \section{Analysis}\label{sec:analysis}
 
-There are many music recommendation web applications online such as Youtube \footnote{www.youtube.com}, Spotify \footnote{www.spotify.com}etc. They have a lot of data about users, user activity, a lot of songs, a lot of tags. Our application is just a small project that does not aspire on growing to such extend. What we want to provide to our users are not endless playlists but more of an inspiration to find new songs and then play them (for exapmle on Youtube). \\
+There are many music recommendation web applications online such as Youtube\footnote{www.youtube.com}, Spotify\footnote{www.spotify.com}etc. They have a lot of data about users, user activity, a lot of songs, a lot of tags. Our application is just a small project that does not aspire on growing to such extend. What we want to provide to our users are not endless playlists but more of an inspiration to find new songs and then play them (for exapmle on Youtube). \\
 We obviously want this application to have the usual web application functionalities, such as creating accounts, logging in and out, going through different web pages, etc. Because it is a song recommender application, we want our users to be able to view recommendations, create playlists, search for songs and like and dislike songs to improve the suggestions for him. Besides that we want the users to be able to add songs they already know and that are missing in our database and then see, which songs are similar to it based on various recommendation methods. Even if the does not like the recommended song, it might be interesting for him to see, which songs are similar to it based on for example lyrics. It gives the user a more hands on experience and is so not only about music but also a bit about the theory of this application. \\
 
 \section{Implementation}\label{sec:implementation}
@@ -18,7 +18,7 @@ In this section, we present the overall architecture of our application with foc
 
 \subsection{Technologies}
 
-We build our web application in the Django framework in Python 3.6. We chose Python because it is well suited for machine learning and Django because it is a Python based framework. Besides this, to ensure a smooth user experience while performing complex computational tasks, we included Celery \footnote{http://www.celeryproject.org} which is a asynchronous task queue to run expensive tasks in the background. We used RabbitMQ \footnote{https://www.rabbitmq.com} as Celery's message broker.
+We build our web application in the Django framework in Python 3.6. We chose Python because it is well suited for machine learning and Django because it is a Python based framework. Besides this, to ensure a smooth user experience while performing complex computational tasks, we included Celery\footnote{http://www.celeryproject.org} which is a asynchronous task queue to run expensive tasks in the background. We used RabbitMQ\footnote{https://www.rabbitmq.com} as Celery's message broker.
 
 \subsection{Design}
 
@@ -133,7 +133,8 @@ Let's recapitulate our method choices:
 
 \subsubsection{Recommendation calculation}\label{ssec:recom_calcs}
 
-The similarity of two songs is calculated using the cosine similarity with threshold $cos\_sim_t$ as described in Subsection \ref{ssec:evaluation_measures}. The similarity of a song to a user of list is an addition of similarities. To be specific, the similarity of a song $s_i$ to a user is the $ \sum_{k=0}^{k=n} c*cos\_sim_t(s_i, s_k) $  where $ i \neq k $ and $ s_k $ is a song the user played and $n$ is the number of songs the user has played and $c$ is a constant which is either 1 when the song $s_k$ was played or 2 when $s_k$ was also liked. \\
+The similarity of two songs is calculated using the cosine similarity with threshold $cos\_sim_t$ as described in Subsection
+\ref{ssec:evaluation_measures}. The similarity of a song to a user of list is an addition of similarities. To be specific, the similarity of a song $s_i$ to a user is the $ \sum_{k=0}^{k=n} c*cos\_sim_t(s_i, s_k) $  where $ i \neq k $ and $ s_k $ is a song the user played and $n$ is the number of songs the user has played and $c$ is a constant which is either 1 when the song $s_k$ was played or 2 when $s_k$ was also liked. \\
 The displayed recommendations do not include songs the user has already played. It is also possible to see always only the top 10 recommendations, overall, and for a each list. When it comes to a page with a specific song, it does not matter what user is viewing it, it is always the same and displays an audio area where it is possible to play the song and 10 most similar song to this one. There is also a possibility to like it or dislike it.\\ 
 
 \section{Configuration options}\label{sec:configurations}
@@ -176,7 +177,13 @@ The \textit{My lists} page displays all lists he has created and top ten most si
 	\caption{A screenshot of the My lists page of the proposed web application.}
 	\label{fig:my_lists_page}
 \end{figure}
-Next there is a possibility to add a song, which redirects the user to a form he fills out asking for a name of the song, the artist, the lyrics and a YouTube link. When he clicks add, this song is added to the database and has the same possibilities as the others.\\
+Next there is a possibility to add a song, which redirects the user to a form he fills out asking for a name of the song, the artist, the lyrics and a YouTube link as can be seen in Figure \ref{fig:add_song_form}. When he clicks add, this song is added to the database and has the same possibilities as the others.\\
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\linewidth]{./img/add_song_form.png}
+	\caption{A screenshot of the All songs page of the proposed web application with an active drop-down menu.}
+	\label{fig:add_song_form}
+\end{figure}
 The next button \textit{All songs} redirects to a page displaying songs that are in the database in a random order. The page can be seen in Figure \ref{fig:all_songs_view}. In the same Figure we can also see the drop-down menu where the user can logout, delete his account or go to a web page \textit{About this application} where the different distance metrics are described.
 \begin{figure}[H]
     \centering
@@ -184,9 +191,21 @@ The next button \textit{All songs} redirects to a page displaying songs that are
 	\caption{A screenshot of the All songs page of the proposed web application with an active drop-down menu.}
 	\label{fig:all_songs_page}
 \end{figure}
-There is also a search bar, where one can search for songs based on title and artist. \\
+There is also a search bar, where one can search for songs based on title and artist. Illustrative results for the search of "Nirvana" can be seen in \ref{fig:search_results} \\
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\linewidth]{./img/search_results_page.png}
+	\caption{A screenshot of the All songs page of the proposed web application with an active drop-down menu.}
+	\label{fig:search_results_page}
+\end{figure}
 A detail page of a songs allows the user play the audio of the song. He can also like or dislike the songs. If a song is disliked, it does not appear in recommendations and is not included into similarity calculations. There is also the possibility to add a song to a list.
-Right to the song, there are its ten most similar songs. Here even disliked and played songs are included. \\
+Right to the song, there are its ten most similar songs. Here even disliked and played songs are included. A illustrative \textit{SongDetail page} of the song "" is displayed in Figure \ref{fig:song_detail_page}. \\
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=1\linewidth]{./img/song_detail_page.png}
+	\caption{A screenshot of the All songs page of the proposed web application with an active drop-down menu.}
+	\label{fig:song_detail_page}
+\end{figure}
 A detail page of a list allows the user to see top ten most similar songs to this list and all the songs he has added to the particular list. The top ten similar songs again exclude played songs and disliked songs. \\
 
 
