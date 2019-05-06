@@ -153,7 +153,9 @@ There is a boolean variable called \texttt{EMAIL\_DISABLED} which is set on True
 The application has not been completely deployed. It runs on \url{http://acheron.ms.mff.cuni.cz:42009/index/} in debug mode. To actually deploy the application, it is necessary go to \texttt{settings.py} and change the \texttt{Debug} variable to \texttt{False}. Then it is necessary to collect all static files (including all the mp3 files) and tell Django where they are as it stops handling static files itself without the debug mode on.\\
 It is also necessary to choose some wsgi, for example \texttt{gunicorn} with \texttt{nginx} or \texttt{apache} as web servers.
 
-\section{User documentation}\label{sec:user_docs}
+\section*{User documentation}\label{sec:user_docs}
+When a user first logs in, there are no recommendations available as there is no data about the user's preferences. The recommendations are based on songs the user has visited and played so to get the first recommendations for songs, the user needs to play some songs or create a list and add songs to that list. 
+
 The application has a navigation menu on top of the page which appears on every page. From there, the user can go to the \textit{Homepage} where he can see the lists he created, and top ten recommendations for him. These recommendations exclude disliked and played songs. The \textit{Homepage} is displayed in Figure \ref{fig:home_page}. \\
 
 \begin{figure}[H]
@@ -163,28 +165,28 @@ The application has a navigation menu on top of the page which appears on every 
 	\label{fig:home_page}
 \end{figure}
 
-He can also go to his \textit{Recommended} page whose screenshot is in Figure \ref{fig:recommended_page} where he can see all the songs he played and top ten recommendations for him. Recommendations exclude disliked and played songs. Another thing illustrated in this Figure is the possibility to use the \textit{Distance type} drop-down menu and change the metrics based on which songs are recommended.
+One can also go to the \textit{Recommended} page whose screenshot is in Figure \ref{fig:recommended_page}. All the songs the logged in user played are displayed on the right side of the screen and top ten recommendations for him are displayed on the left. Recommendations exclude disliked and played songs. Another thing illustrated in Figure \ref{fig:recommended_page} is the possibility to use the \textit{Distance type} drop-down menu and change the similarity method. The similarity method that is currently selected is the one based on which recommendations are presented. 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\linewidth]{./img/recommended_page.png}
 	\caption{A screenshot of the Recommended page of the proposed web application with an active Distance type drop-down menu to change the distance based on which recommendations are calculated.}
 	\label{fig:recommended_page}
 \end{figure}
-The \textit{My lists} page displays all lists he has created and top ten most similar songs for each of those lists including the complete list of songs he has played. The \textit{My lists} page displayed in figure \ref{fig:my_lists_page}.  \\
+The \textit{My lists} page displays all lists the logged in user has created and top ten most similar songs for each of those lists including the complete list of songs he has played. The \textit{My lists} page displayed in figure \ref{fig:my_lists_page}.  \\
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\linewidth]{./img/my_lists_page.png}
 	\caption{A screenshot of the My lists page of the proposed web application.}
 	\label{fig:my_lists_page}
 \end{figure}
-Next there is a possibility to add a song, which redirects the user to a form he fills out asking for a name of the song, the artist, the lyrics and a YouTube link as can be seen in Figure \ref{fig:add_song_form}. When he clicks add, this song is added to the database and has the same possibilities as the others.\\
+The next option on the navigation menu to add a song, which redirects the user to a form. The form which asks to fill out a name of the song, the artist, the lyrics and a YouTube link as can be seen in Figure \ref{fig:add_song_form}. When it is filled out and \textit{add} is clicked, this song is added to the database. The most similar songs to this song are found and this song is considered played and liked by the user who added it.\\
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\linewidth]{./img/add_song_form.png}
 	\caption{A screenshot of the All songs page of the proposed web application with an active drop-down menu.}
 	\label{fig:add_song_form}
 \end{figure}
-The next button \textit{All songs} redirects to a page displaying songs that are in the database in a random order. The page can be seen in Figure \ref{fig:all_songs_view}. In the same Figure we can also see the drop-down menu where the user can logout, delete his account or go to a web page \textit{About this application} where the different distance metrics are described.
+The next button on the navigation menu, the \textit{All songs} button, redirects to a page displaying songs that are in the database. The songs are displayed in a random order. The page can be seen in Figure \ref{fig:all_songs_page}. In the same Figure we can also see the drop-down menu where the user can logout, delete his account or go to a web page \textit{About this application} where the implemented music similarity methods are described.
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\linewidth]{./img/all_songs_page.png}
@@ -199,7 +201,7 @@ There is also a search bar, where one can search for songs based on title and ar
 	\label{fig:search_results}
 \end{figure}
 A detail page of a songs allows the user play the audio of the song. He can also like or dislike the songs. If a song is disliked, it does not appear in recommendations and is not included into similarity calculations. There is also the possibility to add a song to a list.
-Right to the song, there are its ten most similar songs. Here even disliked and played songs are included. A illustrative \textit{SongDetail page} of the song "" is displayed in Figure \ref{fig:song_detail_page}. \\
+Right to the song, there are its ten most similar songs. Here even disliked and played songs are included. A illustrative \textit{SongDetail page} of the song "Invisible Kid" by "Metallica" is displayed in Figure \ref{fig:song_detail_page}. \\
 \begin{figure}[H]
     \centering
 	\includegraphics[width=1\linewidth]{./img/song_detail_page.png}
