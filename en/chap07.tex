@@ -7,6 +7,8 @@ In this section, we will describe the proposed web application for novel song re
     \item In Section \ref{sec:configurations} We present the possible configurations of our application.
 \end{itemize}
 
+ The source code of this project is included in the Attachment \ref{attach:first_attachment} together with user documentation which we decided not to include in this thesis. The modules we are referring to in this chapter and also the previous chapters can be found there. To navigate the various modules and directories, see \texttt{README.md} which can be found in the attachment in the \texttt{songRecommender\_project} directory.
+
 \section{Analysis}\label{sec:analysis}
 
 There are many music recommendation web applications online such as Youtube\footnote{www.youtube.com}, Spotify\footnote{www.spotify.com} etc. They have a lot of data about users, user activity, a lot of songs, a lot of tags. Our application is just does not aspire on growing to such extend. We want to provide our users with an inspiration for new songs and then play them on another musical platform (for exapmle on Youtube). \\
@@ -164,7 +166,7 @@ The methods that were used to transfer the data into the database are in the \te
 
 \section{Configuration options}\label{sec:configurations}
 
-In this section we will describe the configuration options the application provides. There are some options that influence recommendation as well as options to change the server settings. All of the configurations are in the module \texttt{setting.py}
+In this section we will describe the configuration options the application provides. There are some options that influence recommendation as well as options to change the server settings. All of the configurations are in the module \texttt{setting.py}.
 
 \subsection{Similarity method configurations}
 The things that can be set for similarity methods are the thresholds. Right now, the threshold values correspond the to keeping 827,900 biggest similarities for each similarity method, meaning, there are about 50*16594 instances of \texttt{Distance} stored in the database for each of the implemented methods. Changing the threshold does not influence the songs that are already in the database. Nevertheless, when a new song is added, potentially more distances will be created, when the threshold is lowered, or less, when its raised. \\
