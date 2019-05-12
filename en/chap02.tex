@@ -22,13 +22,12 @@ dataset containing song information and lyrics as well as a dataset with informa
 about users and their played tracks. First we tried to match the lyrics dataset onto
 the \textit{Thisismyjam} dataset\footnote{http://www.thisismyjam.com}. However we
 were able to match only 6800 songs with lyrics as well as user data. We then tried
-the \textit{Echo Nest Subset profile}\footnote{https://labrosa.ee.columbia.edu/millionsong/tasteprofile} \cite{Bertin-Mahieux2011} dataset available
+the \textit{Echo Nest Taste Profile Subset}\footnote{https://labrosa.ee.columbia.edu/millionsong/tasteprofile} \cite{Bertin-Mahieux2011} dataset available
 on the Milion Song Dataset (MSD) website. 
-The Echo Nest Taste Profile Subset provides us with 48,373,586 triplets of
-\textit{user id, song id} and \textit{the number of times the user has played a
-song}. This then had to be mapped onto the MSD dataset to get a name and artist for each song and then mapped onto our lyrics dataset.
+The Echo Nest Taste Profile Subset provides 48,373,586 triplets of
+\textit{user id, song id} and \textit{the number of times the user has played a song}. This then had to be mapped onto the MSD dataset to get a name and artist for each song and then mapped onto our lyrics dataset.
 
-After removing songs we did not have lyrics for, we ended up with 16,594 unique songs, and 45,054 unique users. Even though it is a significant reduction it still provides enough data to carry out all the desired experiments. For each of the 16,594 songs we also acquired a mono .wav
+After removing songs we did not have lyrics for, we ended up with 16,594 unique songs and 45,054 unique users. Even though it is a significant reduction it still provides enough data to carry out all the desired experiments. For each of the 16,594 songs we also acquired a mono .wav
 file. 
 
 \section{Final dataset statistics}
@@ -39,7 +38,7 @@ Overall our final dataset had 160,454 entries containing a user id, artist, song
     \item The \textit{User dataset} denoted as UD.  Each one of its 110,826 entries consists of a userID, song name and artist. It contains 11,123 unique users who have at 4 songs assigned to them so it is a dataset of all playlists of length at least 4.
 \end{itemize}
  Since the evaluation method is aimed to reveal the missing entries based on the
- implemented recommendation techniques\footnote{Chapter \ref{chap:experiments}} we studied the dataset and especially the playlist's
+ implemented recommendation techniques\footnote{Chapter \ref{chap:experiments}}, we studied the dataset and especially the playlist's
  lengths in more detail. \\
  
 Here are some important remarks:
