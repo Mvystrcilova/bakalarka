@@ -253,7 +253,7 @@ We trained both architectures for 150 epochs and a batch size of 256 which is th
 \section{Similarity metrics}\label{sec:similarity_metrics}
 As the reader might have noticed, we presented several possible methods which encode a song into a vector. But we still need to define similarity between these vectors. There are many ways of asserting how similar two vectors are, however, we do not consider studying these to be main focus of this thesis. After the initial exploration of this topic, we decided to use the \textbf{cosine similarity metrics} for all the representation methods. 
 
-Although throughout the proposed web application the metric is referred to as distance, it in fact is a similarity measure, meaning, the greater value the more similar two songs are. We use the \texttt{sklearn.metrics.pairwise.cosine\_similarity} method for all the similarity calculations.
+Although throughout the proposed web application the metric is referred to as distance, it in fact is a similarity measure, meaning, the greater value the more similar two songs are. We use the \texttt{metrics.pairwise.cosine\_similarity} method from Python's \texttt{sklearn} package for all the similarity calculations.
 
 \section{Evaluation}\label{sec:evaluation}
 
